@@ -64,8 +64,14 @@ export async function readPreview(fileEntity: FileEntity) {
       if (img.match(/^https?:\/\//)) {
         return img;
       } else {
+        let img_ = img.trim();
+        if (img_.startsWith("<") && img_.endsWith(">")) {
+          img_ = img_.slice(1, -1);
+        } else if (img_.includes("%")) {
+          img_ = decodeURIComponent(img_);
+        }
         const file = this.app.metadataCache.getFirstLinkpathDest(
-          img,
+          img_,
           fileEntity.sourcePath
         );
         console.debug(`Found image: ${img} = file=${file}`);
