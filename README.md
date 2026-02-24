@@ -1,3 +1,9 @@
+Note:
+
+This plugin is a fork of [L7Cy/obsidian-2hop-links-plus](https://github.com/L7Cy/obsidian-2hop-links-plus), which is a fork of [tokuhirom/obsidian-2hop-links-plugin](https://github.com/tokuhirom/obsidian-2hop-links-plugin).
+
+----------
+
 # Obsidian 2Hop Links Plus
 
 2Hop Links Plus is an [Obsidian](https://obsidian.md/) plugin that displays related links up to 2 hops away in a card format. This makes it easy to browse the connections between notes. Each card contains a preview of the corresponding note.
