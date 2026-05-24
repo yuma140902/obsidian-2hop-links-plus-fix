@@ -12,6 +12,8 @@ The following changes have been made:
 - Fixed an issue where the mouse cursor icon would not return to its original state after middle-clicking
 - Changed the plugin to prioritize the `image` property when it exists in a note
 
+Install this plugin using [BRAT](https://github.com/TfTHacker/obsidian42-brat).
+
 The following is the README from the upstream fork, L7Cy/obsidian-2hop-links-plus.
 
 ----------

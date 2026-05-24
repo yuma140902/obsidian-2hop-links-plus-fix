@@ -10,6 +10,8 @@
 - 中ボタンクリックしたときにマウスカーソルのアイコンが元に戻らなくなる問題を修正
 - ノートに `image` プロパティがあればそれを優先するように変更
 
+[BRAT](https://github.com/TfTHacker/obsidian42-brat) を使用してインストールしてください。
+
 以下はフォーク元である L7Cy/obsidian-2hop-links-plus の README です。
 
 ----------
