@@ -47,20 +47,20 @@ export default class TwohopLinksPlugin extends Plugin {
     this.addSettingTab(new TwohopSettingTab(this.app, this));
     this.registerView(
       "TwoHopLinksView",
-      (leaf: WorkspaceLeaf) => new SeparatePaneView(leaf, this, this.links)
+      (leaf: WorkspaceLeaf) => new SeparatePaneView(leaf, this, this.links),
     );
     this.registerEvent(
       this.app.metadataCache.on("changed", async (file: TFile) => {
         if (file === this.app.workspace.getActiveFile()) {
           await this.renderTwohopLinks(false);
         }
-      })
+      }),
     );
     this.registerEvent(
       this.app.workspace.on(
         "active-leaf-change",
-        this.refreshTwohopLinks.bind(this)
-      )
+        this.refreshTwohopLinks.bind(this),
+      ),
     );
     this.app.workspace.trigger("parse-style-settings");
 
@@ -82,11 +82,11 @@ export default class TwohopLinksPlugin extends Plugin {
     const linkText = removeBlockReference(fileEntity.linkText);
 
     console.debug(
-      `Open file: linkText='${linkText}', sourcePath='${fileEntity.sourcePath}'`
+      `Open file: linkText='${linkText}', sourcePath='${fileEntity.sourcePath}'`,
     );
     const file = this.app.metadataCache.getFirstLinkpathDest(
       linkText,
-      fileEntity.sourcePath
+      fileEntity.sourcePath,
     );
     if (file == null) {
       if (!confirm(`Create new file: ${linkText}?`)) {
@@ -96,7 +96,7 @@ export default class TwohopLinksPlugin extends Plugin {
     }
     return this.app.workspace.openLinkText(
       fileEntity.linkText,
-      fileEntity.sourcePath
+      fileEntity.sourcePath,
     );
   }
 
@@ -127,7 +127,7 @@ export default class TwohopLinksPlugin extends Plugin {
 
   private getContainerElements(markdownView: MarkdownView): Element[] {
     const elements = markdownView.containerEl.querySelectorAll(
-      ".markdown-source-view .CodeMirror-lines, .markdown-preview-view, .markdown-source-view .cm-sizer"
+      ".markdown-source-view .CodeMirror-lines, .markdown-preview-view, .markdown-source-view .cm-sizer",
     );
 
     const containers: Element[] = [];
@@ -207,7 +207,7 @@ export default class TwohopLinksPlugin extends Plugin {
           twoHopLinks,
           tagLinksList,
           frontmatterKeyLinksList,
-          container
+          container,
         );
       }
 
@@ -223,7 +223,7 @@ export default class TwohopLinksPlugin extends Plugin {
     twoHopLinks: TwohopLink[],
     tagLinksList: PropertiesLinks[],
     frontmatterKeyLinksList: PropertiesLinks[],
-    container: Element
+    container: Element,
   ) {
     const showForwardConnectedLinks = this.settings.showForwardConnectedLinks;
     const showBackwardConnectedLinks = this.settings.showBackwardConnectedLinks;
@@ -253,14 +253,14 @@ export default class TwohopLinksPlugin extends Plugin {
         initialBoxCount={this.settings.initialBoxCount}
         initialSectionCount={this.settings.initialSectionCount}
       />,
-      container
+      container,
     );
   }
 
   enableLinksInMarkdown(): void {
     this.showLinksInMarkdown = true;
     this.renderTwohopLinks(true).then(() =>
-      console.debug("Rendered two hop links")
+      console.debug("Rendered two hop links"),
     );
   }
 
@@ -268,7 +268,7 @@ export default class TwohopLinksPlugin extends Plugin {
     this.showLinksInMarkdown = false;
     this.removeTwohopLinks();
     const container = this.app.workspace.containerEl.querySelector(
-      ".twohop-links-container"
+      ".twohop-links-container",
     );
     if (container) {
       ReactDOM.unmountComponentAtNode(container);
@@ -292,8 +292,8 @@ export default class TwohopLinksPlugin extends Plugin {
       if (markdownView.previewMode !== null) {
         const previewElements = Array.from(
           markdownView.previewMode.containerEl.querySelectorAll(
-            "." + CONTAINER_CLASS
-          )
+            "." + CONTAINER_CLASS,
+          ),
         );
         for (const element of previewElements) {
           element.remove();

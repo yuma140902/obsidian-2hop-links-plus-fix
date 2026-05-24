@@ -44,16 +44,16 @@ export default class LinkView
     this.abortController = new AbortController();
     const preview = await this.props.getPreview(
       this.props.fileEntity,
-      this.abortController.signal
+      this.abortController.signal,
     );
     const title = await this.props.getTitle(
       this.props.fileEntity,
-      this.abortController.signal
-    )
+      this.abortController.signal,
+    );
     if (!this.abortController.signal.aborted) {
       this.setState({
         preview: preview,
-        title: title
+        title: title,
       });
     }
   }
@@ -66,7 +66,7 @@ export default class LinkView
     const { app, fileEntity } = this.props;
     const file = app.metadataCache.getFirstLinkpathDest(
       removeBlockReference(fileEntity.linkText),
-      fileEntity.sourcePath
+      fileEntity.sourcePath,
     );
     let leaf: WorkspaceLeaf;
     leaf = app.workspace.getLeaf(options);
@@ -92,25 +92,25 @@ export default class LinkView
     menu.addItem((item) =>
       item.setTitle("Open link").onClick(async () => {
         await this.openFileWithOptions();
-      })
+      }),
     );
 
     menu.addItem((item) =>
       item.setTitle("Open in new tab").onClick(async () => {
         await this.openFileWithOptions("tab");
-      })
+      }),
     );
 
     menu.addItem((item) =>
       item.setTitle("Open to the right").onClick(async () => {
         await this.openFileWithOptions("split");
-      })
+      }),
     );
 
     menu.addItem((item) =>
       item.setTitle("Open in new window").onClick(async () => {
         await this.openFileWithOptions("window");
-      })
+      }),
     );
 
     menu.showAtPosition({ x: clientX, y: clientY });
@@ -180,14 +180,12 @@ export default class LinkView
         draggable="true"
         onDragStart={(event) => {
           const fileEntityLinkText = removeBlockReference(
-            this.props.fileEntity.linkText
+            this.props.fileEntity.linkText,
           );
           event.dataTransfer.setData("text/plain", `[[${fileEntityLinkText}]]`);
         }}
       >
-        <div className="twohop-links-box-title">
-          {this.state.title}
-        </div>
+        <div className="twohop-links-box-title">{this.state.title}</div>
         <div className={"twohop-links-box-preview"}>
           {this.state.preview &&
           this.state.preview.match(/^(app|https?):\/\//) ? (

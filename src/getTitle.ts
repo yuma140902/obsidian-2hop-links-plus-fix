@@ -7,7 +7,7 @@ export async function getTitle(fileEntity: FileEntity) {
   if (!this.settings.frontmatterPropertyKeyAsTitle) return linkText;
   const file = this.app.metadataCache.getFirstLinkpathDest(
     linkText,
-    fileEntity.sourcePath
+    fileEntity.sourcePath,
   );
 
   if (file == null) return linkText;

@@ -42,7 +42,7 @@ export class SeparatePaneView extends ItemView {
           if (file === this.app.workspace.getActiveFile()) {
             await this.updateOrForceUpdate(false);
           }
-        })
+        }),
       );
     } catch (error) {
       this.handleError("Error updating TwoHopLinksView", error);
@@ -78,7 +78,7 @@ export class SeparatePaneView extends ItemView {
           twoHopLinks,
           tagLinksList,
           frontmatterKeyLinksList,
-          this.containerEl
+          this.containerEl,
         );
 
         this.addLinkEventListeners();
@@ -96,7 +96,7 @@ export class SeparatePaneView extends ItemView {
     ReactDOM.unmountComponentAtNode(this.containerEl);
     ReactDOM.render(
       <div>Error: Could not render two hop links</div>,
-      this.containerEl
+      this.containerEl,
     );
   }
 
@@ -122,8 +122,8 @@ export class SeparatePaneView extends ItemView {
             lastActiveFilePath = newActiveFilePath;
             await this.updateOrForceUpdate(true);
           }
-        }
-      )
+        },
+      ),
     );
   }
 

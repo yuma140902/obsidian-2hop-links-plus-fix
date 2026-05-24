@@ -44,7 +44,7 @@ export class Links {
         this.app.metadataCache.getFileCache(activeFile);
       ({ resolved: forwardLinks, new: newLinks } = await this.getForwardLinks(
         activeFile,
-        activeFileCache
+        activeFileCache,
       ));
       const seenLinkSet = new Set<string>(forwardLinks.map((it) => it.key()));
       backwardLinks = await this.getBackLinks(activeFile, seenLinkSet);
@@ -54,14 +54,14 @@ export class Links {
         activeFile,
         this.app.metadataCache.resolvedLinks,
         seenLinkSet,
-        twoHopLinkSet
+        twoHopLinkSet,
       );
 
       tagLinksList = await this.getLinksListOfFilesWithTags(
         activeFile,
         activeFileCache,
         seenLinkSet,
-        twoHopLinkSet
+        twoHopLinkSet,
       );
 
       frontmatterKeyLinksList =
@@ -69,19 +69,19 @@ export class Links {
           activeFile,
           activeFileCache,
           seenLinkSet,
-          twoHopLinkSet
+          twoHopLinkSet,
         );
     } else {
       const allMarkdownFiles = this.app.vault
         .getMarkdownFiles()
         .filter(
           (file: { path: string }) =>
-            !shouldExcludePath(file.path, this.settings.excludePaths)
+            !shouldExcludePath(file.path, this.settings.excludePaths),
         );
 
       const sortedFiles = await getSortedFiles(
         allMarkdownFiles,
-        getSortFunctionForFile(this.settings.sortOrder)
+        getSortFunctionForFile(this.settings.sortOrder),
       );
 
       forwardLinks = sortedFiles.map((file) => new FileEntity("", file.path));
@@ -99,7 +99,7 @@ export class Links {
 
   async getForwardLinks(
     activeFile: TFile,
-    activeFileCache: CachedMetadata
+    activeFileCache: CachedMetadata,
   ): Promise<{ resolved: FileEntity[]; new: FileEntity[] }> {
     const resolvedLinks: FileEntity[] = [];
     const newLinks: FileEntity[] = [];
@@ -123,7 +123,7 @@ export class Links {
           seen.add(key);
           const targetFile = this.app.metadataCache.getFirstLinkpathDest(
             key,
-            activeFile.path
+            activeFile.path,
           );
 
           if (
@@ -138,7 +138,7 @@ export class Links {
           } else {
             const backlinksCount = await this.getBacklinksCount(
               key,
-              activeFile.path
+              activeFile.path,
             );
             if (
               1 <= backlinksCount &&
@@ -146,7 +146,7 @@ export class Links {
             ) {
               await this.app.vault.create(
                 `${this.app.workspace.getActiveFile().parent.path}/${key}.md`,
-                ""
+                "",
               );
               resolvedLinks.push(new FileEntity(activeFile.path, key));
             } else {
@@ -196,7 +196,7 @@ export class Links {
     const sortedResolvedLinks = await this.getSortedFileEntities(
       resolvedLinks,
       (entity) => entity.sourcePath,
-      this.settings.sortOrder
+      this.settings.sortOrder,
     );
     return {
       resolved: sortedResolvedLinks,
@@ -225,7 +225,7 @@ export class Links {
 
   async getBackLinks(
     activeFile: TFile,
-    forwardLinkSet: Set<string>
+    forwardLinkSet: Set<string>,
   ): Promise<FileEntity[]> {
     const name = activeFile.path;
     const resolvedLinks: Record<string, Record<string, number>> = this.app
@@ -251,7 +251,7 @@ export class Links {
 
     const allFiles: TFile[] = this.app.vault.getFiles();
     const canvasFiles: TFile[] = allFiles.filter(
-      (file) => file.extension === "canvas"
+      (file) => file.extension === "canvas",
     );
 
     for (const canvasFile of canvasFiles) {
@@ -285,7 +285,7 @@ export class Links {
     return await this.getSortedFileEntities(
       backLinkEntities,
       (entity) => entity.sourcePath,
-      this.settings.sortOrder
+      this.settings.sortOrder,
     );
   }
 
@@ -293,7 +293,7 @@ export class Links {
     activeFile: TFile,
     links: Record<string, Record<string, number>>,
     forwardLinkSet: Set<string>,
-    twoHopLinkSet: Set<string>
+    twoHopLinkSet: Set<string>,
   ): Promise<TwohopLink[]> {
     const twoHopLinks: Record<string, FileEntity[]> = {};
     const twohopLinkList = await this.aggregate2hopLinks(activeFile, links);
@@ -353,7 +353,7 @@ export class Links {
       await Promise.all(
         linkKeys
           .filter(
-            (path) => !shouldExcludePath(path, this.settings.excludePaths)
+            (path) => !shouldExcludePath(path, this.settings.excludePaths),
           )
           .map(async (path) => {
             if (twoHopLinks[path]) {
@@ -362,11 +362,11 @@ export class Links {
                 (entity) => {
                   const file = this.app.metadataCache.getFirstLinkpathDest(
                     entity.linkText,
-                    entity.sourcePath
+                    entity.sourcePath,
                   );
                   return file ? file.path : null;
                 },
-                this.settings.sortOrder
+                this.settings.sortOrder,
               );
 
               return {
@@ -375,21 +375,21 @@ export class Links {
               };
             }
             return null;
-          })
+          }),
       )
     ).filter((it) => it);
 
     const twoHopLinkStatsPromises = twoHopLinkEntities.map(
       async (twoHopLinkEntity) => {
         const stat = await this.app.vault.adapter.stat(
-          twoHopLinkEntity.link.linkText
+          twoHopLinkEntity.link.linkText,
         );
         return { twoHopLinkEntity, stat };
-      }
+      },
     );
 
     const twoHopLinkStats = (await Promise.all(twoHopLinkStatsPromises)).filter(
-      (it) => it && it.twoHopLinkEntity && it.stat
+      (it) => it && it.twoHopLinkEntity && it.stat,
     );
 
     const twoHopSortFunction = getTwoHopSortFunction(this.settings.sortOrder);
@@ -400,15 +400,15 @@ export class Links {
         (it) =>
           new TwohopLink(
             it!.twoHopLinkEntity.link,
-            it!.twoHopLinkEntity.fileEntities
-          )
+            it!.twoHopLinkEntity.fileEntities,
+          ),
       )
       .filter((it) => it.fileEntities.length > 0);
   }
 
   async aggregate2hopLinks(
     activeFile: TFile,
-    links: Record<string, Record<string, number>>
+    links: Record<string, Record<string, number>>,
   ): Promise<Record<string, string[]>> {
     const result: Record<string, string[]> = {};
 
@@ -468,11 +468,11 @@ export class Links {
     activeFile: TFile,
     activeFileCache: CachedMetadata,
     forwardLinkSet: Set<string>,
-    twoHopLinkSet: Set<string>
+    twoHopLinkSet: Set<string>,
   ): Promise<PropertiesLinks[]> {
     const activeFileTags = this.getTagsFromCache(
       activeFileCache,
-      this.settings.excludeTags
+      this.settings.excludeTags,
     );
     if (activeFileTags.length === 0) return [];
 
@@ -485,7 +485,7 @@ export class Links {
       .filter(
         (markdownFile: TFile) =>
           markdownFile !== activeFile &&
-          !shouldExcludePath(markdownFile.path, this.settings.excludePaths)
+          !shouldExcludePath(markdownFile.path, this.settings.excludePaths),
       );
 
     for (const markdownFile of markdownFiles) {
@@ -494,7 +494,7 @@ export class Links {
 
       const fileTags = this.getTagsFromCache(
         cachedMetadata,
-        this.settings.excludePaths
+        this.settings.excludePaths,
       );
 
       for (const tag of fileTags) {
@@ -517,7 +517,7 @@ export class Links {
           !tagMap[tag].some(
             (existingEntity) =>
               existingEntity.sourcePath === newFileEntity.sourcePath &&
-              existingEntity.linkText === newFileEntity.linkText
+              existingEntity.linkText === newFileEntity.linkText,
           )
         ) {
           tagMap[tag].push(newFileEntity);
@@ -528,7 +528,7 @@ export class Links {
     const tagLinksEntities = await this.createPropertiesLinkEntities(
       this.settings,
       tagMap,
-      "tags"
+      "tags",
     );
 
     const sortFunction = getTagHierarchySortFunction(this.settings.sortOrder);
@@ -539,7 +539,7 @@ export class Links {
     activeFile: TFile,
     activeFileCache: CachedMetadata,
     forwardLinkSet: Set<string>,
-    twoHopLinkSet: Set<string>
+    twoHopLinkSet: Set<string>,
   ): Promise<PropertiesLinks[]> {
     const activeFileFrontmatter = activeFileCache.frontmatter;
     if (!activeFileFrontmatter) return [];
@@ -552,7 +552,7 @@ export class Links {
       .filter(
         (markdownFile: TFile) =>
           markdownFile !== activeFile &&
-          !shouldExcludePath(markdownFile.path, this.settings.excludePaths)
+          !shouldExcludePath(markdownFile.path, this.settings.excludePaths),
       );
 
     for (const markdownFile of markdownFiles) {
@@ -621,7 +621,7 @@ export class Links {
 
               const linkText = filePathToLinkText(markdownFile.path);
               frontmatterKeyMap[key][hierarchicalValue].push(
-                new FileEntity(activeFile.path, linkText)
+                new FileEntity(activeFile.path, linkText),
               );
               seen[markdownFile.path] = true;
             }
@@ -636,7 +636,7 @@ export class Links {
       const propertiesLinksEntities = await this.createPropertiesLinkEntities(
         this.settings,
         valueMap,
-        key
+        key,
       );
 
       frontmatterKeyLinksEntities.push(...propertiesLinksEntities);
@@ -649,31 +649,31 @@ export class Links {
   async createPropertiesLinkEntities(
     settings: any,
     propertiesMap: Record<string, FileEntity[]>,
-    key: string = ""
+    key: string = "",
   ): Promise<PropertiesLinks[]> {
     const propertiesLinksEntitiesPromises = Object.entries(propertiesMap).map(
       async ([property, entities]) => {
         const sortedEntities = await this.getSortedFileEntities(
           entities,
           (entity) => entity.sourcePath,
-          settings.sortOrder
+          settings.sortOrder,
         );
         if (sortedEntities.length === 0) {
           return null;
         }
         return new PropertiesLinks(property, key, sortedEntities);
-      }
+      },
     );
 
     const propertiesLinksEntities = await Promise.all(
-      propertiesLinksEntitiesPromises
+      propertiesLinksEntitiesPromises,
     );
     return propertiesLinksEntities.filter((it) => it != null);
   }
 
   getTagsFromCache(
     cache: CachedMetadata | null | undefined,
-    excludeTags: string[]
+    excludeTags: string[],
   ): string[] {
     let tags: string[] = [];
     if (cache) {
@@ -729,7 +729,7 @@ export class Links {
   async getSortedFileEntities(
     entities: FileEntity[],
     sourcePathFn: (entity: FileEntity) => string,
-    sortOrder: string
+    sortOrder: string,
   ): Promise<FileEntity[]> {
     const statsPromises = entities.map(async (entity) => {
       const stat = await this.app.vault.adapter.stat(sourcePathFn(entity));

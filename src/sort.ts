@@ -46,14 +46,14 @@ export function getTwoHopSortFunction(sortOrder: string) {
       return (a: any, b: any) =>
         a.twoHopLinkEntity && b.twoHopLinkEntity
           ? a.twoHopLinkEntity.link.linkText.localeCompare(
-              b.twoHopLinkEntity.link.linkText
+              b.twoHopLinkEntity.link.linkText,
             )
           : Math.random() - 0.5;
     case "filenameDesc":
       return (a: any, b: any) =>
         a.twoHopLinkEntity && b.twoHopLinkEntity
           ? b.twoHopLinkEntity.link.linkText.localeCompare(
-              a.twoHopLinkEntity.link.linkText
+              a.twoHopLinkEntity.link.linkText,
             )
           : Math.random() - 0.5;
     case "modifiedDesc":
@@ -88,12 +88,12 @@ export function getSortFunctionForFile(sortOrder: string) {
 
 export async function getSortedFiles(
   files: TFile[],
-  sortFunction: (file: TFile) => string | number
+  sortFunction: (file: TFile) => string | number,
 ): Promise<TFile[]> {
   const fileEntities: { file: TFile; sortValue: string | number }[] = files.map(
     (file) => {
       return { file, sortValue: sortFunction(file) };
-    }
+    },
   );
   fileEntities.sort((a, b) => {
     const sortValueA = a.sortValue;

@@ -7,7 +7,7 @@ export async function readPreview(fileEntity: FileEntity) {
   if (fileEntity.linkText.match(/\.(avif|bmp|gif|jpeg|jpg|png|webp)$/i)) {
     const file = this.app.metadataCache.getFirstLinkpathDest(
       linkText,
-      fileEntity.sourcePath
+      fileEntity.sourcePath,
     );
     if (file) {
       const resourcePath = this.app.vault.getResourcePath(file);
@@ -25,12 +25,12 @@ export async function readPreview(fileEntity: FileEntity) {
 
   console.debug(
     `readPreview: getFirstLinkpathDest: ${linkText}, fileEntity.linkText=${fileEntity.linkText}
-      sourcePath=${fileEntity.sourcePath}`
+      sourcePath=${fileEntity.sourcePath}`,
   );
 
   const file = this.app.metadataCache.getFirstLinkpathDest(
     linkText,
-    fileEntity.sourcePath
+    fileEntity.sourcePath,
   );
   if (file == null) {
     return "";
@@ -43,7 +43,7 @@ export async function readPreview(fileEntity: FileEntity) {
   const content = await this.app.vault.cachedRead(file);
 
   const combinedMatch = content.match(
-    /<iframe[^>]*src="([^"]+)"[^>]*>|!\[[^\]]*\]\((https:\/\/www\.youtube\.com\/embed\/[^\)]+|https:\/\/www\.youtube\.com\/watch\?v=[^\)]+|https:\/\/youtu\.be\/[^\)]+)\)|!\[(?:[^\]]*?)\]\(((?!https?:\/\/twitter\.com\/)[^\)]+?(?:avif|bmp|gif|jpeg|jpg|png|webp))\)|!\[\[([^\]]+.(?:avif|bmp|gif|jpeg|jpg|png|webp))\]\]|image: "?\[\[([^\]]+(?:avif|bmp|gif|jpeg|jpg|png|webp))\]\]/
+    /<iframe[^>]*src="([^"]+)"[^>]*>|!\[[^\]]*\]\((https:\/\/www\.youtube\.com\/embed\/[^\)]+|https:\/\/www\.youtube\.com\/watch\?v=[^\)]+|https:\/\/youtu\.be\/[^\)]+)\)|!\[(?:[^\]]*?)\]\(((?!https?:\/\/twitter\.com\/)[^\)]+?(?:avif|bmp|gif|jpeg|jpg|png|webp))\)|!\[\[([^\]]+.(?:avif|bmp|gif|jpeg|jpg|png|webp))\]\]|image: "?\[\[([^\]]+(?:avif|bmp|gif|jpeg|jpg|png|webp))\]\]/,
   );
   if (combinedMatch) {
     const iframeUrl = combinedMatch[1];
@@ -72,7 +72,7 @@ export async function readPreview(fileEntity: FileEntity) {
         }
         const file = this.app.metadataCache.getFirstLinkpathDest(
           img_,
-          fileEntity.sourcePath
+          fileEntity.sourcePath,
         );
         console.debug(`Found image: ${img} = file=${file}`);
         if (file) {
@@ -96,7 +96,7 @@ export async function readPreview(fileEntity: FileEntity) {
 
 export function getThumbnailUrlFromIframeUrl(iframeUrl: string): string | null {
   const youtubeIdMatch = iframeUrl.match(
-    /(?:https?:\/\/)?(?:www\.)?youtube\.com\/embed\/([^?&]+)(?:\?[^?]+)?$|(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([^?&]+)(?:\?[^?]+)?$|(?:https?:\/\/)?(?:youtu\.be\/)([^?&]+)(?:\?[^?]+)?$/
+    /(?:https?:\/\/)?(?:www\.)?youtube\.com\/embed\/([^?&]+)(?:\?[^?]+)?$|(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([^?&]+)(?:\?[^?]+)?$|(?:https?:\/\/)?(?:youtu\.be\/)([^?&]+)(?:\?[^?]+)?$/,
   );
   if (youtubeIdMatch) {
     const youtubeId =

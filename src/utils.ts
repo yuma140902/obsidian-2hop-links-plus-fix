@@ -10,7 +10,7 @@ export function removeBlockReference(src: string): string {
 
 export function shouldExcludePath(
   path: string,
-  excludePaths: string[]
+  excludePaths: string[],
 ): boolean {
   return excludePaths.some((excludePath: string) => {
     if (excludePath.endsWith("/")) {

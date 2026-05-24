@@ -24,7 +24,7 @@ export const DEFAULT_SETTINGS: TwohopPluginSettings = {
 };
 
 export async function loadSettings(
-  plugin: TwohopLinksPlugin
+  plugin: TwohopLinksPlugin,
 ): Promise<TwohopPluginSettings> {
   const data = await plugin.loadData();
   const settings = Object.assign({}, DEFAULT_SETTINGS, data);

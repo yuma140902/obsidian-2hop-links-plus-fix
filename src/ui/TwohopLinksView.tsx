@@ -5,7 +5,6 @@ import { TwohopLink } from "../model/TwohopLink";
 import { App, setIcon } from "obsidian";
 
 interface TwohopLinksViewProps {
-  
   twoHopLinks: TwohopLink[];
   onClick: (fileEntity: FileEntity) => Promise<void>;
   getPreview: (fileEntity: FileEntity) => Promise<string>;
@@ -41,7 +40,7 @@ class LinkComponent extends React.Component<
     super(props);
     this.state = {
       displayedEntitiesCount: props.initialDisplayedEntitiesCount,
-      title: null
+      title: null,
     };
   }
 
@@ -50,10 +49,10 @@ class LinkComponent extends React.Component<
       setIcon(this.loadMoreRef.current, "more-horizontal");
     }
 
-    const title = await this.props.getTitle(this.props.link.link)
+    const title = await this.props.getTitle(this.props.link.link);
 
     this.setState({
-      title: title
+      title: title,
     });
   }
 

@@ -41,110 +41,93 @@ export class TwohopSettingTab extends PluginSettingTab {
     this.createToggleSetting(
       "Show 2hop links in separate pane",
       "If true, the 2hop links is displayed in a separate pane.",
-      "showTwoHopLinksInSeparatePane"
+      "showTwoHopLinksInSeparatePane",
     );
     if (this.plugin.settings.showTwoHopLinksInSeparatePane) {
       this.createToggleSetting(
         "Show 2hop links on the right",
         "If true, the pane for 2hop links is displayed on the right, otherwise on the left.",
-        "panePositionIsRight"
+        "panePositionIsRight",
       );
     }
-    this.createDropdownSetting(
-      "Sort Order",
-      "",
-      "sortOrder",
-      {
-        random: "Random",
-        filenameAsc: "File name (A to Z)",
-        filenameDesc: "File name (Z to A)",
-        modifiedDesc: "Modified time (new to old)",
-        modifiedAsc: "Modified time (old to new)",
-        createdDesc: "Created time (new to old)",
-        createdAsc: "Created time (old to new)",
-      }
-    );
+    this.createDropdownSetting("Sort Order", "", "sortOrder", {
+      random: "Random",
+      filenameAsc: "File name (A to Z)",
+      filenameDesc: "File name (Z to A)",
+      modifiedDesc: "Modified time (new to old)",
+      modifiedAsc: "Modified time (old to new)",
+      createdDesc: "Created time (new to old)",
+      createdAsc: "Created time (old to new)",
+    });
     this.createToggleSetting("Show Links", "", "showForwardConnectedLinks");
     this.createToggleSetting(
       "Show Back Links",
       "",
-      "showBackwardConnectedLinks"
+      "showBackwardConnectedLinks",
     );
-    this.createToggleSetting(
-      "Show 2Hop Links",
-      "",
-      "showTwohopLinks"
-    );
-    this.createToggleSetting(
-      "Show New Links",
-      "",
-      "showNewLinks"
-    );
-    this.createToggleSetting(
-      "Show Tags Links",
-      "",
-      "showTagsLinks"
-    );
+    this.createToggleSetting("Show 2Hop Links", "", "showTwohopLinks");
+    this.createToggleSetting("Show New Links", "", "showNewLinks");
+    this.createToggleSetting("Show Tags Links", "", "showTagsLinks");
     this.createToggleSetting(
       "Show Properties Links",
       "",
-      "showPropertiesLinks"
+      "showPropertiesLinks",
     );
     this.createToggleSetting("Show Image in the 2hop Links", "", "showImage");
     this.createTextAreaSetting(
       "Exclude Paths",
       "List of file or folder paths to exclude, one per line.",
       "excludePaths",
-      "path/to/file.md\npath/to/folder/"
+      "path/to/file.md\npath/to/folder/",
     );
     this.createTextAreaSetting(
       "Exclude Tags",
       "List of tags to exclude, one per line.",
       "excludeTags",
-      "tagNameToExclude\nparent/childTagToExclude\nparentTag/forAllSubtags/"
+      "tagNameToExclude\nparent/childTagToExclude\nparentTag/forAllSubtags/",
     );
     this.createTextAreaSetting(
       "Frontmatter Keys",
       "List of frontmatter keys to include, one per line. The values of these keys will be treated like tags.",
       "frontmatterKeys",
-      "key1\nkey2\nkey3"
+      "key1\nkey2\nkey3",
     );
     this.createTextSettingNum(
       "Initial Box Count",
       "Set the initial number of boxes to be displayed.",
-      "initialBoxCount"
+      "initialBoxCount",
     );
     this.createTextSettingNum(
       "Initial Section Count",
       "Set the initial number of sections to be displayed.",
-      "initialSectionCount"
+      "initialSectionCount",
     );
     this.createToggleSetting(
       "Enable Duplicate Removal",
       "Enable the removal of duplicate links.",
-      "enableDuplicateRemoval"
+      "enableDuplicateRemoval",
     );
     this.createToggleSetting(
       "Auto Load 2hop Links",
       "Automatically load 2hop links when opening a note.",
-      "autoLoadTwoHopLinks"
+      "autoLoadTwoHopLinks",
     );
     this.createToggleSetting(
       "Create Files For Multiple Linked",
       "Create new files for links that are connected to more than one other file.",
-      "createFilesForMultiLinked"
+      "createFilesForMultiLinked",
     );
     this.createTextSettingStr(
       "Set frontmatter property key as title",
       "Set the property key of the frontmatter to be used as the title to be displayed.",
-      "frontmatterPropertyKeyAsTitle"
+      "frontmatterPropertyKeyAsTitle",
     );
   }
 
   createToggleSetting(
     name: string,
     desc: string,
-    key: keyof TwohopPluginSettings
+    key: keyof TwohopPluginSettings,
   ) {
     new Setting(this.containerEl)
       .setName(name)
@@ -165,7 +148,7 @@ export class TwohopSettingTab extends PluginSettingTab {
     name: string,
     desc: string,
     key: keyof TwohopPluginSettings,
-    options: Record<string, string>
+    options: Record<string, string>,
   ) {
     new Setting(this.containerEl)
       .setName(name)
@@ -188,7 +171,7 @@ export class TwohopSettingTab extends PluginSettingTab {
     name: string,
     desc: string,
     key: keyof TwohopPluginSettings,
-    placeholder: string
+    placeholder: string,
   ) {
     new Setting(this.containerEl)
       .setName(name)
@@ -211,7 +194,7 @@ export class TwohopSettingTab extends PluginSettingTab {
   createTextSettingNum(
     name: string,
     desc: string,
-    key: keyof TwohopPluginSettings
+    key: keyof TwohopPluginSettings,
   ) {
     new Setting(this.containerEl)
       .setName(name)
@@ -220,7 +203,7 @@ export class TwohopSettingTab extends PluginSettingTab {
         text.setValue((this.plugin.settings[key] as number).toString());
         text.inputEl.addEventListener("blur", async (event) => {
           this.plugin.settings[key] = Number(
-            (event.target as HTMLInputElement).value
+            (event.target as HTMLInputElement).value,
           );
           await saveSettings(this.plugin);
           await this.plugin.updateTwoHopLinksView();
@@ -231,7 +214,7 @@ export class TwohopSettingTab extends PluginSettingTab {
   createTextSettingStr(
     name: string,
     desc: string,
-    key: keyof TwohopPluginSettings
+    key: keyof TwohopPluginSettings,
   ) {
     new Setting(this.containerEl)
       .setName(name)

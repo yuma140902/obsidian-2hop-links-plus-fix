@@ -107,7 +107,7 @@ const LinkComponent = React.memo(
         </div>
       );
     }
-  }
+  },
 );
 
 const PropertiesLinksListView = React.memo(
@@ -136,7 +136,7 @@ const PropertiesLinksListView = React.memo(
         </div>
       );
     }
-  }
+  },
 );
 
 export default PropertiesLinksListView;
