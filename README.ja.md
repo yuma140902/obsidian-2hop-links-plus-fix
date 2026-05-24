@@ -1,18 +1,16 @@
 # Obsidian 2Hop Links Plus Fix
 
-[日本語](./README.ja.md)
+このプラグインは [tokuhirom/obsidian-2hop-links-plugin](https://github.com/tokuhirom/obsidian-2hop-links-plugin) のフォークである [L7Cy/obsidian-2hop-links-plus](https://github.com/L7Cy/obsidian-2hop-links-plus) のフォークです。
 
-This plugin is a fork of [L7Cy/obsidian-2hop-links-plus](https://github.com/L7Cy/obsidian-2hop-links-plus), which is a fork of [tokuhirom/obsidian-2hop-links-plugin](https://github.com/tokuhirom/obsidian-2hop-links-plugin).
+以下の変更を加えてあります。
 
-The following changes have been made:
+- webp, gif, avif の表示に対応
+- `![](<path to image.png>)` のように `<>` で囲まれた形式の画像リンクに対応
+- `![](path%20to%20image.png)` のように URL エンコードされた形式の画像リンクに対応
+- 中ボタンクリックしたときにマウスカーソルのアイコンが元に戻らなくなる問題を修正
+- ノートに `image` プロパティがあればそれを優先するように変更
 
-- Added support for displaying webp, gif, and avif images
-- Added support for image links enclosed in `<>`, such as `![](<path to image.png>)`
-- Added support for URL-encoded image links, such as `![](path%20to%20image.png)`
-- Fixed an issue where the mouse cursor icon would not return to its original state after middle-clicking
-- Changed the plugin to prioritize the `image` property when it exists in a note
-
-The following is the README from the upstream fork, L7Cy/obsidian-2hop-links-plus.
+以下はフォーク元である L7Cy/obsidian-2hop-links-plus の README です。
 
 ----------
 
