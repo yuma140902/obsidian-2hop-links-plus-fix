@@ -3,7 +3,7 @@
   "version": "0.37.1",
   "description": "Related links up to 2 hops away are displayed in a card format, allowing for easy browsing through connections between notes. Each card contains a preview of the corresponding note.",
   "main": "main.js",
-  "packageManager": "npm@11.13.0",
+  "packageManager": "pnpm@11.1.2",
   "scripts": {
     "dev": "node esbuild.config.mjs",
     "build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
@@ -13,9 +13,6 @@
   "keywords": [],
   "author": "",
   "license": "MIT",
-  "engines": {
-    "node": ">=24 <25"
-  },
   "dependencies": {
     "react": "17.0.2",
     "react-dom": "17.0.2",
