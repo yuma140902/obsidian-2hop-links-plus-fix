@@ -1,8 +1,8 @@
+import { type App, setIcon } from "obsidian";
 import React, { createRef } from "react";
-import { FileEntity } from "../model/FileEntity";
+import type { FileEntity } from "../model/FileEntity";
+import type { TwohopLink } from "../model/TwohopLink";
 import LinkView from "./LinkView";
-import { TwohopLink } from "../model/TwohopLink";
-import { App, setIcon } from "obsidian";
 
 interface TwohopLinksViewProps {
   twoHopLinks: TwohopLink[];
@@ -120,7 +120,7 @@ class LinkComponent extends React.Component<
   }
 }
 
-const MemoizedLinkComponent = React.memo(LinkComponent);
+const MEMOIZED_LINK_COMPONENT = React.memo(LinkComponent);
 
 class TwohopLinksView extends React.Component<TwohopLinksViewProps> {
   render(): JSX.Element {
@@ -129,7 +129,7 @@ class TwohopLinksView extends React.Component<TwohopLinksViewProps> {
         {this.props.twoHopLinks
           .slice(0, this.props.displayedSectionCount)
           .map((link, index) => (
-            <MemoizedLinkComponent
+            <MEMOIZED_LINK_COMPONENT
               key={index}
               link={link}
               onClick={this.props.onClick}

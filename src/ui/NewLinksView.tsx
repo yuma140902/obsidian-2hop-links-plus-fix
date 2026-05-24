@@ -1,7 +1,7 @@
+import { type App, setIcon } from "obsidian";
 import React, { createRef } from "react";
-import { FileEntity } from "../model/FileEntity";
+import type { FileEntity } from "../model/FileEntity";
 import LinkView from "./LinkView";
-import { App, setIcon } from "obsidian";
 
 interface NewLinksViewProps {
   fileEntities: FileEntity[];

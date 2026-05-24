@@ -1,4 +1,4 @@
-import { FileEntity } from "./model/FileEntity";
+import type { FileEntity } from "./model/FileEntity";
 import { removeBlockReference } from "./utils";
 
 export async function readPreview(fileEntity: FileEntity) {
@@ -43,7 +43,7 @@ export async function readPreview(fileEntity: FileEntity) {
   const content = await this.app.vault.cachedRead(file);
 
   const combinedMatch = content.match(
-    /<iframe[^>]*src="([^"]+)"[^>]*>|!\[[^\]]*\]\((https:\/\/www\.youtube\.com\/embed\/[^\)]+|https:\/\/www\.youtube\.com\/watch\?v=[^\)]+|https:\/\/youtu\.be\/[^\)]+)\)|!\[(?:[^\]]*?)\]\(((?!https?:\/\/twitter\.com\/)[^\)]+?(?:avif|bmp|gif|jpeg|jpg|png|webp))\)|!\[\[([^\]]+.(?:avif|bmp|gif|jpeg|jpg|png|webp))\]\]|image: "?\[\[([^\]]+(?:avif|bmp|gif|jpeg|jpg|png|webp))\]\]/,
+    /<iframe[^>]*src="([^"]+)"[^>]*>|!\[[^\]]*\]\((https:\/\/www\.youtube\.com\/embed\/[^)]+|https:\/\/www\.youtube\.com\/watch\?v=[^)]+|https:\/\/youtu\.be\/[^)]+)\)|!\[(?:[^\]]*?)\]\(((?!https?:\/\/twitter\.com\/)[^)]+?(?:avif|bmp|gif|jpeg|jpg|png|webp))\)|!\[\[([^\]]+.(?:avif|bmp|gif|jpeg|jpg|png|webp))\]\]|image: "?\[\[([^\]]+(?:avif|bmp|gif|jpeg|jpg|png|webp))\]\]/,
   );
   if (combinedMatch) {
     const iframeUrl = combinedMatch[1];

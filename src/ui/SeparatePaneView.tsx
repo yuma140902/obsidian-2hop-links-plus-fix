@@ -1,8 +1,8 @@
-import { TFile, WorkspaceLeaf, ItemView } from "obsidian";
+import { ItemView, TFile, type WorkspaceLeaf } from "obsidian";
 import React from "react";
 import ReactDOM from "react-dom";
-import TwohopLinksPlugin from "../main";
-import { Links } from "../links";
+import type { Links } from "../links";
+import type TwohopLinksPlugin from "../main";
 
 export class SeparatePaneView extends ItemView {
   private plugin: TwohopLinksPlugin;

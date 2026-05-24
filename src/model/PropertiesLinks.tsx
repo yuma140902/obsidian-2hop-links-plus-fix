@@ -1,4 +1,4 @@
-import { FileEntity } from "./FileEntity";
+import type { FileEntity } from "./FileEntity";
 
 export class PropertiesLinks {
   public property: string;

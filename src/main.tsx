@@ -1,26 +1,26 @@
 import {
   MarkdownView,
   Plugin,
-  TFile,
-  WorkspaceLeaf,
   parseFrontMatterTags,
+  type TFile,
+  type WorkspaceLeaf,
 } from "obsidian";
 import React from "react";
 import ReactDOM from "react-dom";
-import { FileEntity } from "./model/FileEntity";
-import { TwohopLink } from "./model/TwohopLink";
-import TwohopLinksRootView from "./ui/TwohopLinksRootView";
-import { PropertiesLinks } from "./model/PropertiesLinks";
-import { removeBlockReference } from "./utils";
+import { getTitle } from "./getTitle";
+import { Links } from "./links";
+import type { FileEntity } from "./model/FileEntity";
+import type { PropertiesLinks } from "./model/PropertiesLinks";
+import type { TwohopLink } from "./model/TwohopLink";
+import { readPreview } from "./preview";
+import { loadSettings } from "./settings/index";
 import {
-  TwohopPluginSettings,
+  type TwohopPluginSettings,
   TwohopSettingTab,
 } from "./settings/TwohopSettingTab";
 import { SeparatePaneView } from "./ui/SeparatePaneView";
-import { readPreview } from "./preview";
-import { getTitle } from "./getTitle";
-import { loadSettings } from "./settings/index";
-import { Links } from "./links";
+import TwohopLinksRootView from "./ui/TwohopLinksRootView";
+import { removeBlockReference } from "./utils";
 
 const CONTAINER_CLASS = "twohop-links-container";
 export const HOVER_LINK_ID = "2hop-links";

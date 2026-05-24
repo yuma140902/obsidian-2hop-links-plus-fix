@@ -1,5 +1,5 @@
-import { TFile } from "obsidian";
-import { PropertiesLinks } from "./model/PropertiesLinks";
+import type { TFile } from "obsidian";
+import type { PropertiesLinks } from "./model/PropertiesLinks";
 
 export function getSortFunction(sortOrder: string) {
   switch (sortOrder) {

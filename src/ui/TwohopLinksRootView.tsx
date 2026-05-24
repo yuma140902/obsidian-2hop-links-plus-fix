@@ -1,12 +1,12 @@
-import { TwohopLink } from "../model/TwohopLink";
+import { type App, setIcon } from "obsidian";
 import React, { createRef } from "react";
-import { FileEntity } from "../model/FileEntity";
-import TwohopLinksView from "./TwohopLinksView";
+import type { FileEntity } from "../model/FileEntity";
+import type { PropertiesLinks } from "../model/PropertiesLinks";
+import type { TwohopLink } from "../model/TwohopLink";
 import ConnectedLinksView from "./ConnectedLinksView";
 import NewLinksView from "./NewLinksView";
-import { PropertiesLinks } from "../model/PropertiesLinks";
-import { App, setIcon } from "obsidian";
 import PropertiesLinksListView from "./TagLinksListView";
+import TwohopLinksView from "./TwohopLinksView";
 
 interface TwohopLinksRootViewProps {
   forwardConnectedLinks: FileEntity[];
@@ -106,7 +106,7 @@ export default class TwohopLinksRootView extends React.Component<
   };
 
   componentDidMount() {
-    for (let ref of Object.values(this.loadMoreRefs)) {
+    for (const ref of Object.values(this.loadMoreRefs)) {
       if (ref.current) {
         setIcon(ref.current, "more-horizontal");
       }
@@ -136,7 +136,7 @@ export default class TwohopLinksRootView extends React.Component<
         isLoaded: this.props.autoLoadTwoHopLinks,
       });
     }
-    for (let ref of Object.values(this.loadMoreRefs)) {
+    for (const ref of Object.values(this.loadMoreRefs)) {
       if (ref.current) {
         setIcon(ref.current, "more-horizontal");
       }

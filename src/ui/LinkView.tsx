@@ -1,8 +1,14 @@
+import {
+  type App,
+  type HoverParent,
+  type HoverPopover,
+  Menu,
+  type WorkspaceLeaf,
+} from "obsidian";
 import React from "react";
-import { FileEntity } from "../model/FileEntity";
-import { removeBlockReference } from "../utils";
-import { App, Menu, HoverParent, HoverPopover, WorkspaceLeaf } from "obsidian";
 import { HOVER_LINK_ID } from "../main";
+import type { FileEntity } from "../model/FileEntity";
+import { removeBlockReference } from "../utils";
 
 interface LinkViewProps {
   fileEntity: FileEntity;

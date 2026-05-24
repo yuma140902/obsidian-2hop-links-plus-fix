@@ -1,5 +1,5 @@
-import { TwohopPluginSettings } from "./TwohopSettingTab";
-import TwohopLinksPlugin from "../main";
+import type TwohopLinksPlugin from "../main";
+import type { TwohopPluginSettings } from "./TwohopSettingTab";
 
 export const DEFAULT_SETTINGS: TwohopPluginSettings = {
   autoLoadTwoHopLinks: true,

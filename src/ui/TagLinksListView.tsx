@@ -1,8 +1,8 @@
+import { type App, setIcon } from "obsidian";
 import React, { createRef } from "react";
-import { FileEntity } from "../model/FileEntity";
+import type { FileEntity } from "../model/FileEntity";
+import type { PropertiesLinks } from "../model/PropertiesLinks";
 import LinkView from "./LinkView";
-import { PropertiesLinks } from "../model/PropertiesLinks";
-import { App, setIcon } from "obsidian";
 
 interface PropertiesLinksListViewProps {
   propertiesLinksList: PropertiesLinks[];
@@ -29,7 +29,7 @@ interface LinkComponentState {
   displayedEntitiesCount: number;
 }
 
-const LinkComponent = React.memo(
+const LINK_COMPONENT = React.memo(
   class extends React.Component<LinkComponentProps, LinkComponentState> {
     loadMoreRef = createRef<HTMLDivElement>();
 
@@ -118,7 +118,7 @@ const PropertiesLinksListView = React.memo(
           {this.props.propertiesLinksList
             .slice(0, this.props.displayedSectionCount)
             .map((tagLink, index) => (
-              <LinkComponent
+              <LINK_COMPONENT
                 key={index}
                 tagLink={tagLink}
                 onClick={this.props.onClick}

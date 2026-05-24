@@ -1,19 +1,19 @@
-import { App, CachedMetadata, TFile } from "obsidian";
+import type { App, CachedMetadata, TFile } from "obsidian";
 import { FileEntity } from "./model/FileEntity";
+import { PropertiesLinks } from "./model/PropertiesLinks";
+import { TwohopLink } from "./model/TwohopLink";
+import {
+  getSortedFiles,
+  getSortFunction,
+  getSortFunctionForFile,
+  getTagHierarchySortFunction,
+  getTwoHopSortFunction,
+} from "./sort";
 import {
   filePathToLinkText,
   removeBlockReference,
   shouldExcludePath,
 } from "./utils";
-import { TwohopLink } from "./model/TwohopLink";
-import {
-  getSortFunction,
-  getSortFunctionForFile,
-  getSortedFiles,
-  getTagHierarchySortFunction,
-  getTwoHopSortFunction,
-} from "./sort";
-import { PropertiesLinks } from "./model/PropertiesLinks";
 
 export class Links {
   app: App;
@@ -302,7 +302,7 @@ export class Links {
       return [];
     }
 
-    let seenLinks = new Set<string>();
+    const seenLinks = new Set<string>();
 
     if (twohopLinkList) {
       for (const k of Object.keys(twohopLinkList)) {
@@ -565,8 +565,8 @@ export class Links {
       for (const [key, value] of Object.entries(fileFrontmatter)) {
         if (!this.settings.frontmatterKeys.includes(key)) continue;
 
-        let values: string[] = [];
-        let activeValues: string[] = [];
+        const values: string[] = [];
+        const activeValues: string[] = [];
 
         if (typeof value === "string") {
           values.push(value);
@@ -675,7 +675,7 @@ export class Links {
     cache: CachedMetadata | null | undefined,
     excludeTags: string[],
   ): string[] {
-    let tags: string[] = [];
+    const tags: string[] = [];
     if (cache) {
       if (cache.tags) {
         cache.tags.forEach((it) => {

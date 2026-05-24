@@ -1,4 +1,4 @@
-import { FileEntity } from "./model/FileEntity";
+import type { FileEntity } from "./model/FileEntity";
 import { removeBlockReference } from "./utils";
 
 export async function getTitle(fileEntity: FileEntity) {

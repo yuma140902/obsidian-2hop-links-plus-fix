@@ -1,5 +1,5 @@
-import { App, PluginSettingTab, Setting } from "obsidian";
-import TwohopLinksPlugin from "../main";
+import { type App, PluginSettingTab, Setting } from "obsidian";
+import type TwohopLinksPlugin from "../main";
 import { saveSettings } from ".";
 
 export interface TwohopPluginSettings {
