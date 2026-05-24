@@ -3,6 +3,7 @@
   "version": "0.37.1",
   "description": "Related links up to 2 hops away are displayed in a card format, allowing for easy browsing through connections between notes. Each card contains a preview of the corresponding note.",
   "main": "main.js",
+  "packageManager": "npm@11.13.0",
   "scripts": {
     "dev": "node esbuild.config.mjs",
     "build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
@@ -12,6 +13,9 @@
   "keywords": [],
   "author": "",
   "license": "MIT",
+  "engines": {
+    "node": ">=24 <25"
+  },
   "dependencies": {
     "react": "17.0.2",
     "react-dom": "17.0.2",
@@ -19,14 +23,14 @@
   },
   "devDependencies": {
     "@babel/preset-react": "7.28.5",
-    "@types/node": "14.18.63",
+    "@types/node": "24.12.4",
     "@types/react": "17.0.92",
     "@types/react-dom": "17.0.26",
-    "@typescript-eslint/eslint-plugin": "5.62.0",
-    "@typescript-eslint/parser": "5.62.0",
-    "builtin-modules": "3.3.0",
-    "esbuild": "0.21.5",
-    "eslint": "8.57.1",
+    "@typescript-eslint/eslint-plugin": "8.59.4",
+    "@typescript-eslint/parser": "8.59.4",
+    "builtin-modules": "5.2.0",
+    "esbuild": "0.28.0",
+    "eslint": "10.4.0",
     "obsidian": "1.12.3",
     "prettier": "3.8.3",
     "typescript": "5.9.3"
