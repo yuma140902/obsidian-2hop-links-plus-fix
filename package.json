@@ -7,8 +7,8 @@
   "scripts": {
     "dev": "node esbuild.config.mjs",
     "build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
-    "eslint": "eslint . --ext .js,.jsx,.ts,.tsx",
-    "prettier": "prettier --write **/*.{tsx,md,ts}"
+    "lint": "biome lint .",
+    "format": "biome format --write ."
   },
   "keywords": [],
   "author": "",
@@ -20,16 +20,13 @@
   },
   "devDependencies": {
     "@babel/preset-react": "7.28.5",
+    "@biomejs/biome": "2.4.15",
     "@types/node": "24.12.4",
     "@types/react": "17.0.92",
     "@types/react-dom": "17.0.26",
-    "@typescript-eslint/eslint-plugin": "8.59.4",
-    "@typescript-eslint/parser": "8.59.4",
     "builtin-modules": "5.2.0",
     "esbuild": "0.28.0",
-    "eslint": "10.4.0",
     "obsidian": "1.12.3",
-    "prettier": "3.8.3",
     "typescript": "5.9.3"
   }
 }

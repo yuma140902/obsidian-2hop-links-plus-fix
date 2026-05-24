@@ -1,0 +1,80 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.4.15/schema.json",
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
+  },
+  "files": {
+    "ignoreUnknown": true,
+    "includes": [
+      "**",
+      "!node_modules",
+      "!dist",
+      "!main.js",
+      "!coverage",
+      "!rollup.config.js"
+    ]
+  },
+  "formatter": {
+    "enabled": true,
+    "indentStyle": "space",
+    "indentWidth": 2,
+    "includes": ["**/*.{ts,tsx,md}"]
+  },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "double",
+      "semicolons": "always",
+      "trailingCommas": "all"
+    }
+  },
+  "linter": {
+    "enabled": true,
+    "includes": ["**/*.{js,jsx,ts,tsx}"],
+    "rules": {
+      "recommended": true,
+      "a11y": "off",
+      "suspicious": {
+        "noArrayIndexKey": "off",
+        "noDoubleEquals": "off",
+        "noImplicitAnyLet": "off",
+        "useIterableCallbackReturn": "off"
+      },
+      "style": {
+        "useNamingConvention": {
+          "level": "warn",
+          "options": {
+            "strictCase": false,
+            "conventions": [
+              {
+                "selector": {
+                  "kind": "typeLike"
+                },
+                "formats": ["PascalCase"]
+              },
+              {
+                "selector": {
+                  "kind": "enumMember"
+                },
+                "formats": ["PascalCase"]
+              },
+              {
+                "selector": {
+                  "kind": "variable"
+                },
+                "formats": ["camelCase", "CONSTANT_CASE"]
+              },
+              {
+                "selector": {
+                  "kind": "functionParameter"
+                },
+                "match": "_?[a-z][a-zA-Z0-9]*"
+              }
+            ]
+          }
+        }
+      }
+    }
+  }
+}
