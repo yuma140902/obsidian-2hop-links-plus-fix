@@ -11,6 +11,7 @@ The following changes have been made:
 - Added support for URL-encoded image links, such as `![](path%20to%20image.png)`
 - Fixed an issue where the mouse cursor icon would not return to its original state after middle-clicking
 - Changed the plugin to prioritize the `image` property when it exists in a note
+- Minified the code during bundling
 
 Install this plugin using [BRAT](https://github.com/TfTHacker/obsidian42-brat).
 
