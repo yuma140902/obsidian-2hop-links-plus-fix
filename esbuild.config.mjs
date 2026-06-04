@@ -46,7 +46,7 @@ const options = {
 		'@lezer/lr',
 		...builtins],
 	format: 'cjs',
-	target: 'es2016',
+	target: 'es2021',
 	logLevel: "info",
 	minify: prod,
 	sourcemap: prod ? false : 'inline',
