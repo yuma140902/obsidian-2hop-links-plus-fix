@@ -48,6 +48,7 @@ const options = {
 	format: 'cjs',
 	target: 'es2016',
 	logLevel: "info",
+	minify: prod,
 	sourcemap: prod ? false : 'inline',
 	treeShaking: true,
 	outfile: 'main.js',
