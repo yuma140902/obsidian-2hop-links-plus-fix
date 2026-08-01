@@ -19,6 +19,7 @@ import {
 import { renderReactRoot, unmountReactRoot } from "./ui/reactRoot";
 import { SeparatePaneView } from "./ui/SeparatePaneView";
 import TwohopLinksRootView from "./ui/TwohopLinksRootView";
+import type { FileContentLoader } from "./ui/types";
 import { removeBlockReference } from "./utils";
 
 const CONTAINER_CLASS = "twohop-links-container";
@@ -32,6 +33,12 @@ export default class TwohopLinksPlugin extends Plugin {
   private previousLinks: string[] = [];
   private previousTags: string[] = [];
   private renderRevision = 0;
+
+  private readonly getPreview: FileContentLoader = (fileEntity, signal) =>
+    readPreview(this.app, fileEntity, signal);
+
+  private readonly getFileTitle: FileContentLoader = (fileEntity, signal) =>
+    getTitle(this.app, this.settings, fileEntity, signal);
 
   async onload(): Promise<void> {
     console.debug("------ loading obsidian-twohop-links plugin");
@@ -57,10 +64,7 @@ export default class TwohopLinksPlugin extends Plugin {
       }),
     );
     this.registerEvent(
-      this.app.workspace.on(
-        "active-leaf-change",
-        this.refreshTwohopLinks.bind(this),
-      ),
+      this.app.workspace.on("active-leaf-change", this.refreshTwohopLinks),
     );
     this.app.workspace.trigger("parse-style-settings");
 
@@ -72,13 +76,13 @@ export default class TwohopLinksPlugin extends Plugin {
     console.log("unloading plugin");
   }
 
-  async refreshTwohopLinks() {
+  private readonly refreshTwohopLinks = async (): Promise<void> => {
     if (this.showLinksInMarkdown) {
       await this.renderTwohopLinks(true);
     }
-  }
+  };
 
-  private async openFile(fileEntity: FileEntity): Promise<void> {
+  private readonly openFile = async (fileEntity: FileEntity): Promise<void> => {
     const linkText = removeBlockReference(fileEntity.linkText);
 
     console.debug(
@@ -98,7 +102,7 @@ export default class TwohopLinksPlugin extends Plugin {
       fileEntity.linkText,
       fileEntity.sourcePath,
     );
-  }
+  };
 
   async updateTwoHopLinksView() {
     if (this.isTwoHopLinksViewOpen()) {
@@ -134,7 +138,7 @@ export default class TwohopLinksPlugin extends Plugin {
     for (let i = 0; i < elements.length; i++) {
       const el = elements.item(i);
       const container =
-        el.querySelector("." + CONTAINER_CLASS) ||
+        el.querySelector(`.${CONTAINER_CLASS}`) ||
         el.createDiv({ cls: CONTAINER_CLASS });
       containers.push(container);
     }
@@ -148,7 +152,7 @@ export default class TwohopLinksPlugin extends Plugin {
     }
 
     const cache = this.app.metadataCache.getFileCache(file);
-    return cache && cache.links ? cache.links.map((link) => link.link) : [];
+    return cache?.links?.map((link) => link.link) ?? [];
   }
 
   private getActiveFileTags(file: TFile | null): string[] {
@@ -158,9 +162,9 @@ export default class TwohopLinksPlugin extends Plugin {
 
     const cache = this.app.metadataCache.getFileCache(file);
 
-    let tags = cache && cache.tags ? cache.tags.map((tag) => tag.tag) : [];
+    let tags = cache?.tags?.map((tag) => tag.tag) ?? [];
 
-    if (cache && cache.frontmatter && cache.frontmatter.tags) {
+    if (cache?.frontmatter?.tags) {
       const frontMatterTags = parseFrontMatterTags(cache.frontmatter);
       if (frontMatterTags) {
         tags = tags.concat(frontMatterTags);
@@ -241,9 +245,9 @@ export default class TwohopLinksPlugin extends Plugin {
         twoHopLinks={twoHopLinks}
         tagLinksList={tagLinksList}
         frontmatterKeyLinksList={frontmatterKeyLinksList}
-        onClick={this.openFile.bind(this)}
-        getPreview={readPreview.bind(this)}
-        getTitle={getTitle.bind(this)}
+        onClick={this.openFile}
+        getPreview={this.getPreview}
+        getTitle={this.getFileTitle}
         app={this.app}
         showForwardConnectedLinks={showForwardConnectedLinks}
         showBackwardConnectedLinks={showBackwardConnectedLinks}
@@ -268,7 +272,7 @@ export default class TwohopLinksPlugin extends Plugin {
   disableLinksInMarkdown(): void {
     this.showLinksInMarkdown = false;
     this.removeTwohopLinks();
-    (this.app.workspace as any).unregisterHoverLinkSource(HOVER_LINK_ID);
+    this.app.workspace.unregisterHoverLinkSource(HOVER_LINK_ID);
   }
 
   removeTwohopLinks(): void {

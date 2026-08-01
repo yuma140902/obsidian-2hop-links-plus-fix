@@ -1,11 +1,19 @@
+import type { App } from "obsidian";
 import type { FileEntity } from "./model/FileEntity";
+import type { TwohopPluginSettings } from "./settings/TwohopSettingTab";
 import { removeBlockReference } from "./utils";
 
-export async function getTitle(fileEntity: FileEntity) {
+export async function getTitle(
+  app: App,
+  settings: TwohopPluginSettings,
+  fileEntity: FileEntity,
+  signal?: AbortSignal,
+): Promise<string> {
+  if (signal?.aborted) return "";
   const linkText = removeBlockReference(fileEntity.linkText);
 
-  if (!this.settings.frontmatterPropertyKeyAsTitle) return linkText;
-  const file = this.app.metadataCache.getFirstLinkpathDest(
+  if (!settings.frontmatterPropertyKeyAsTitle) return linkText;
+  const file = app.metadataCache.getFirstLinkpathDest(
     linkText,
     fileEntity.sourcePath,
   );
@@ -13,15 +21,11 @@ export async function getTitle(fileEntity: FileEntity) {
   if (file == null) return linkText;
   if (!file.extension?.match(/^(md|markdown)$/)) return linkText;
 
-  const metadata = this.app.metadataCache.getFileCache(file);
+  const metadata = app.metadataCache.getFileCache(file);
 
-  if (
-    !metadata.frontmatter ||
-    !metadata.frontmatter[this.settings.frontmatterPropertyKeyAsTitle]
-  )
+  if (!metadata.frontmatter?.[settings.frontmatterPropertyKeyAsTitle])
     return linkText;
 
-  const title =
-    metadata.frontmatter[this.settings.frontmatterPropertyKeyAsTitle];
-  return title;
+  const title = metadata.frontmatter[settings.frontmatterPropertyKeyAsTitle];
+  return String(title);
 }

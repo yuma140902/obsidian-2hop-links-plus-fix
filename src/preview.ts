@@ -1,16 +1,22 @@
+import type { App } from "obsidian";
 import type { FileEntity } from "./model/FileEntity";
 import { removeBlockReference } from "./utils";
 
-export async function readPreview(fileEntity: FileEntity) {
+export async function readPreview(
+  app: App,
+  fileEntity: FileEntity,
+  signal?: AbortSignal,
+): Promise<string> {
+  if (signal?.aborted) return "";
   const linkText = removeBlockReference(fileEntity.linkText);
 
   if (fileEntity.linkText.match(/\.(avif|bmp|gif|jpeg|jpg|png|webp)$/i)) {
-    const file = this.app.metadataCache.getFirstLinkpathDest(
+    const file = app.metadataCache.getFirstLinkpathDest(
       linkText,
       fileEntity.sourcePath,
     );
     if (file) {
-      const resourcePath = this.app.vault.getResourcePath(file);
+      const resourcePath = app.vault.getResourcePath(file);
       return resourcePath;
     }
   }
@@ -28,7 +34,7 @@ export async function readPreview(fileEntity: FileEntity) {
       sourcePath=${fileEntity.sourcePath}`,
   );
 
-  const file = this.app.metadataCache.getFirstLinkpathDest(
+  const file = app.metadataCache.getFirstLinkpathDest(
     linkText,
     fileEntity.sourcePath,
   );
@@ -40,7 +46,8 @@ export async function readPreview(fileEntity: FileEntity) {
     console.debug(`File too large(${fileEntity.linkText}): ${file.stat.size}`);
     return "";
   }
-  const content = await this.app.vault.cachedRead(file);
+  const content = await app.vault.cachedRead(file);
+  if (signal?.aborted) return "";
 
   const combinedMatch = content.match(
     /<iframe[^>]*src="([^"]+)"[^>]*>|!\[[^\]]*\]\((https:\/\/www\.youtube\.com\/embed\/[^)]+|https:\/\/www\.youtube\.com\/watch\?v=[^)]+|https:\/\/youtu\.be\/[^)]+)\)|!\[(?:[^\]]*?)\]\(((?!https?:\/\/twitter\.com\/)[^)]+?(?:avif|bmp|gif|jpeg|jpg|png|webp))\)|!\[\[([^\]]+.(?:avif|bmp|gif|jpeg|jpg|png|webp))\]\]|image: "?\[\[([^\]]+(?:avif|bmp|gif|jpeg|jpg|png|webp))\]\]/,
@@ -64,19 +71,19 @@ export async function readPreview(fileEntity: FileEntity) {
       if (img.match(/^https?:\/\//)) {
         return img;
       } else {
-        let img_ = img.trim();
-        if (img_.startsWith("<") && img_.endsWith(">")) {
-          img_ = img_.slice(1, -1);
-        } else if (img_.includes("%")) {
-          img_ = decodeURIComponent(img_);
+        let imagePath = img.trim();
+        if (imagePath.startsWith("<") && imagePath.endsWith(">")) {
+          imagePath = imagePath.slice(1, -1);
+        } else if (imagePath.includes("%")) {
+          imagePath = decodeURIComponent(imagePath);
         }
-        const file = this.app.metadataCache.getFirstLinkpathDest(
-          img_,
+        const file = app.metadataCache.getFirstLinkpathDest(
+          imagePath,
           fileEntity.sourcePath,
         );
         console.debug(`Found image: ${img} = file=${file}`);
         if (file) {
-          const resourcePath = this.app.vault.getResourcePath(file);
+          const resourcePath = app.vault.getResourcePath(file);
           console.debug(`Found image: ${img} resourcePath=${resourcePath}`);
           return resourcePath;
         }

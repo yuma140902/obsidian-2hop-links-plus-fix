@@ -1,6 +1,10 @@
 import { SettingTab } from "obsidian";
 
 declare module "obsidian" {
+  interface Workspace {
+    unregisterHoverLinkSource(id: string): void;
+  }
+
   interface App {
     setting: {
       onOpen(): void;
