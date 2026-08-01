@@ -8,19 +8,16 @@ interface TwohopLinksViewProps extends LinkRendererProps {
   twoHopLinks: TwohopLink[];
   displayedSectionCount: number;
   initialDisplayedEntitiesCount: number;
-  resetRevision: number;
 }
 
 interface LinkSectionProps extends LinkRendererProps {
   link: TwohopLink;
   initialDisplayedEntitiesCount: number;
-  resetRevision: number;
 }
 
 const LINK_SECTION = memo(function LinkSection({
   link,
   initialDisplayedEntitiesCount,
-  resetRevision,
   onClick,
   getTitle,
   ...linkProps
@@ -38,11 +35,6 @@ const LINK_SECTION = memo(function LinkSection({
     });
     return () => controller.abort();
   }, [getTitle, link.link]);
-
-  useEffect(() => {
-    void resetRevision;
-    setDisplayedEntitiesCount(initialDisplayedEntitiesCount);
-  }, [initialDisplayedEntitiesCount, resetRevision]);
 
   return (
     <section className="twohop-links-section twohop-links-resolved">

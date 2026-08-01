@@ -5,13 +5,12 @@
     "inlineSources": true,
     "jsx": "react-jsx",
     "module": "ESNext",
-    "target": "es6",
-    "allowJs": true,
+    "target": "ES2021",
     "noImplicitAny": true,
-    "moduleResolution": "node",
+    "moduleResolution": "Bundler",
     "importHelpers": true,
     "allowSyntheticDefaultImports": true,
-    "lib": ["dom", "es5", "scripthost", "es2015"]
+    "lib": ["DOM", "DOM.Iterable", "ES2021"]
   },
   "include": ["**/*.ts", "**/*.tsx"]
 }

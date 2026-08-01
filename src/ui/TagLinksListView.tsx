@@ -1,4 +1,4 @@
-import { memo, useEffect, useState } from "react";
+import { memo, useState } from "react";
 import type { PropertiesLinks } from "../model/PropertiesLinks";
 import LinkView from "./LinkView";
 import type { LinkRendererProps } from "./types";
@@ -8,30 +8,22 @@ interface PropertiesLinksListViewProps extends LinkRendererProps {
   propertiesLinksList: PropertiesLinks[];
   displayedSectionCount: number;
   initialDisplayedEntitiesCount: number;
-  resetRevision: number;
 }
 
 interface LinkSectionProps extends LinkRendererProps {
   propertiesLinks: PropertiesLinks;
   initialDisplayedEntitiesCount: number;
-  resetRevision: number;
 }
 
 const LINK_SECTION = memo(function LinkSection({
   propertiesLinks,
   initialDisplayedEntitiesCount,
-  resetRevision,
   ...linkProps
 }: LinkSectionProps) {
   const [displayedEntitiesCount, setDisplayedEntitiesCount] = useState(
     initialDisplayedEntitiesCount,
   );
   const loadMoreRef = useObsidianIcon<HTMLButtonElement>("more-horizontal");
-
-  useEffect(() => {
-    void resetRevision;
-    setDisplayedEntitiesCount(initialDisplayedEntitiesCount);
-  }, [initialDisplayedEntitiesCount, resetRevision]);
 
   const heading = propertiesLinks.key
     ? `${propertiesLinks.key}: ${propertiesLinks.property}`

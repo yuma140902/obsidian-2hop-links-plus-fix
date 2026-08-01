@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import type { FileEntity } from "../model/FileEntity";
 import type { PropertiesLinks } from "../model/PropertiesLinks";
 import type { TwohopLink } from "../model/TwohopLink";
@@ -58,7 +58,6 @@ export default function TwohopLinksRootView(props: TwohopLinksRootViewProps) {
     initialCounts(props.initialSectionCount),
   );
   const [isLoaded, setIsLoaded] = useState(props.autoLoadTwoHopLinks);
-  const [resetRevision, setResetRevision] = useState(0);
   const loadMoreRef = useObsidianIcon<HTMLButtonElement>("more-horizontal");
 
   const {
@@ -70,31 +69,7 @@ export default function TwohopLinksRootView(props: TwohopLinksRootViewProps) {
     frontmatterKeyLinksList,
     initialBoxCount,
     initialSectionCount,
-    autoLoadTwoHopLinks,
   } = props;
-
-  useEffect(() => {
-    void forwardConnectedLinks;
-    void backwardConnectedLinks;
-    void twoHopLinks;
-    void newLinks;
-    void tagLinksList;
-    void frontmatterKeyLinksList;
-    setDisplayedBoxCount(initialCounts(initialBoxCount));
-    setDisplayedSectionCount(initialCounts(initialSectionCount));
-    setIsLoaded(autoLoadTwoHopLinks);
-    setResetRevision((revision) => revision + 1);
-  }, [
-    forwardConnectedLinks,
-    backwardConnectedLinks,
-    twoHopLinks,
-    newLinks,
-    tagLinksList,
-    frontmatterKeyLinksList,
-    initialBoxCount,
-    initialSectionCount,
-    autoLoadTwoHopLinks,
-  ]);
 
   const loadMoreBoxes = (category: Category) => {
     setDisplayedBoxCount((counts) => ({
@@ -165,7 +140,6 @@ export default function TwohopLinksRootView(props: TwohopLinksRootViewProps) {
           twoHopLinks={twoHopLinks}
           displayedSectionCount={displayedSectionCount.twoHopLinks}
           initialDisplayedEntitiesCount={initialBoxCount}
-          resetRevision={resetRevision}
         />
       )}
       {displayedSectionCount.twoHopLinks < twoHopLinks.length && (
@@ -192,7 +166,6 @@ export default function TwohopLinksRootView(props: TwohopLinksRootViewProps) {
           propertiesLinksList={tagLinksList}
           displayedSectionCount={displayedSectionCount.tagLinksList}
           initialDisplayedEntitiesCount={initialBoxCount}
-          resetRevision={resetRevision}
         />
       )}
       {displayedSectionCount.tagLinksList < tagLinksList.length && (
@@ -211,7 +184,6 @@ export default function TwohopLinksRootView(props: TwohopLinksRootViewProps) {
           propertiesLinksList={frontmatterKeyLinksList}
           displayedSectionCount={displayedSectionCount.frontmatterKeyLinksList}
           initialDisplayedEntitiesCount={initialBoxCount}
-          resetRevision={resetRevision}
         />
       )}
       {displayedSectionCount.frontmatterKeyLinksList <

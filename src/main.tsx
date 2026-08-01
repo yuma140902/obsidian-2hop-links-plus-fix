@@ -31,6 +31,7 @@ export default class TwohopLinksPlugin extends Plugin {
 
   private previousLinks: string[] = [];
   private previousTags: string[] = [];
+  private renderRevision = 0;
 
   async onload(): Promise<void> {
     console.debug("------ loading obsidian-twohop-links plugin");
@@ -233,6 +234,7 @@ export default class TwohopLinksPlugin extends Plugin {
     renderReactRoot(
       container,
       <TwohopLinksRootView
+        key={this.renderRevision++}
         forwardConnectedLinks={forwardConnectedLinks}
         newLinks={newLinks}
         backwardConnectedLinks={backwardConnectedLinks}
@@ -266,13 +268,6 @@ export default class TwohopLinksPlugin extends Plugin {
   disableLinksInMarkdown(): void {
     this.showLinksInMarkdown = false;
     this.removeTwohopLinks();
-    const container = this.app.workspace.containerEl.querySelector(
-      ".twohop-links-container",
-    );
-    if (container) {
-      unmountReactRoot(container);
-      container.remove();
-    }
     (this.app.workspace as any).unregisterHoverLinkSource(HOVER_LINK_ID);
   }
 
@@ -281,24 +276,12 @@ export default class TwohopLinksPlugin extends Plugin {
       this.app.workspace.getActiveViewOfType(MarkdownView);
 
     if (markdownView !== null) {
-      for (const element of this.getContainerElements(markdownView)) {
-        const container = element.querySelector("." + CONTAINER_CLASS);
-        if (container) {
-          unmountReactRoot(container);
-          container.remove();
-        }
-      }
-
-      if (markdownView.previewMode !== null) {
-        const previewElements = Array.from(
-          markdownView.previewMode.containerEl.querySelectorAll(
-            "." + CONTAINER_CLASS,
-          ),
-        );
-        for (const element of previewElements) {
-          unmountReactRoot(element);
-          element.remove();
-        }
+      const containers = markdownView.containerEl.querySelectorAll(
+        `.${CONTAINER_CLASS}`,
+      );
+      for (const container of containers) {
+        unmountReactRoot(container);
+        container.remove();
       }
     }
   }
