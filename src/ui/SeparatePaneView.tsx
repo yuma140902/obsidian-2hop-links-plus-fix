@@ -1,8 +1,7 @@
 import { ItemView, TFile, type WorkspaceLeaf } from "obsidian";
-import React from "react";
-import ReactDOM from "react-dom";
 import type { Links } from "../links";
 import type TwohopLinksPlugin from "../main";
+import { renderReactRoot, unmountReactRoot } from "./reactRoot";
 
 export class SeparatePaneView extends ItemView {
   private plugin: TwohopLinksPlugin;
@@ -70,7 +69,6 @@ export class SeparatePaneView extends ItemView {
           frontmatterKeyLinksList,
         } = await this.links.gatherTwoHopLinks(activeFile);
 
-        ReactDOM.unmountComponentAtNode(this.containerEl);
         await this.plugin.injectTwohopLinks(
           forwardLinks,
           newLinks,
@@ -91,13 +89,16 @@ export class SeparatePaneView extends ItemView {
     }
   }
 
-  handleError(message: string, error: any): void {
+  handleError(message: string, error: unknown): void {
     console.error(message, error);
-    ReactDOM.unmountComponentAtNode(this.containerEl);
-    ReactDOM.render(
-      <div>Error: Could not render two hop links</div>,
+    renderReactRoot(
       this.containerEl,
+      <div>Error: Could not render two hop links</div>,
     );
+  }
+
+  async onClose(): Promise<void> {
+    unmountReactRoot(this.containerEl);
   }
 
   registerActiveFileUpdateEvent() {

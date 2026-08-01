@@ -5,8 +5,6 @@ import {
   type TFile,
   type WorkspaceLeaf,
 } from "obsidian";
-import React from "react";
-import ReactDOM from "react-dom";
 import { getTitle } from "./getTitle";
 import { Links } from "./links";
 import type { FileEntity } from "./model/FileEntity";
@@ -18,6 +16,7 @@ import {
   type TwohopPluginSettings,
   TwohopSettingTab,
 } from "./settings/TwohopSettingTab";
+import { renderReactRoot, unmountReactRoot } from "./ui/reactRoot";
 import { SeparatePaneView } from "./ui/SeparatePaneView";
 import TwohopLinksRootView from "./ui/TwohopLinksRootView";
 import { removeBlockReference } from "./utils";
@@ -231,7 +230,8 @@ export default class TwohopLinksPlugin extends Plugin {
     const showNewLinks = this.settings.showNewLinks;
     const showTagsLinks = this.settings.showTagsLinks;
     const showPropertiesLinks = this.settings.showPropertiesLinks;
-    ReactDOM.render(
+    renderReactRoot(
+      container,
       <TwohopLinksRootView
         forwardConnectedLinks={forwardConnectedLinks}
         newLinks={newLinks}
@@ -253,7 +253,6 @@ export default class TwohopLinksPlugin extends Plugin {
         initialBoxCount={this.settings.initialBoxCount}
         initialSectionCount={this.settings.initialSectionCount}
       />,
-      container,
     );
   }
 
@@ -271,7 +270,7 @@ export default class TwohopLinksPlugin extends Plugin {
       ".twohop-links-container",
     );
     if (container) {
-      ReactDOM.unmountComponentAtNode(container);
+      unmountReactRoot(container);
       container.remove();
     }
     (this.app.workspace as any).unregisterHoverLinkSource(HOVER_LINK_ID);
@@ -285,6 +284,7 @@ export default class TwohopLinksPlugin extends Plugin {
       for (const element of this.getContainerElements(markdownView)) {
         const container = element.querySelector("." + CONTAINER_CLASS);
         if (container) {
+          unmountReactRoot(container);
           container.remove();
         }
       }
@@ -296,6 +296,7 @@ export default class TwohopLinksPlugin extends Plugin {
           ),
         );
         for (const element of previewElements) {
+          unmountReactRoot(element);
           element.remove();
         }
       }
