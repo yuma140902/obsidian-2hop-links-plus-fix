@@ -34,8 +34,8 @@ importers:
         specifier: 17.0.26
         version: 17.0.26(@types/react@17.0.93)
       builtin-modules:
-        specifier: 5.2.0
-        version: 5.2.0
+        specifier: 5.3.0
+        version: 5.3.0
       esbuild:
         specifier: 0.28.1
         version: 0.28.1
@@ -433,8 +433,8 @@ packages:
     engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
     hasBin: true
 
-  builtin-modules@5.2.0:
-    resolution: {integrity: sha512-02yxLeyxF4dNl6SlY6/5HfRSrSdZ/sCPoxy2kZNP5dZZX8LSAD9aE2gtJIUgWrsQTiMPl3mxESyrobSwvRGisQ==}
+  builtin-modules@5.3.0:
+    resolution: {integrity: sha512-hMQUl2bUFG339QygPM97E+mc8OY1IAchORZxm4a/frcYwKzozMzRVDBwHW0NjOqGElLm2O37AVQE8ikxlZHrMQ==}
     engines: {node: '>=18.20'}
 
   caniuse-lite@1.0.30001797:
@@ -896,7 +896,7 @@ snapshots:
       node-releases: 2.0.47
       update-browserslist-db: 1.2.3(browserslist@4.28.2)
 
-  builtin-modules@5.2.0: {}
+  builtin-modules@5.3.0: {}
 
   caniuse-lite@1.0.30001797: {}
 
