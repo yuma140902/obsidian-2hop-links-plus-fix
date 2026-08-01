@@ -1,142 +1,96 @@
-import { type App, setIcon } from "obsidian";
-import React, { createRef } from "react";
-import type { FileEntity } from "../model/FileEntity";
+import { memo, useEffect, useState } from "react";
 import type { PropertiesLinks } from "../model/PropertiesLinks";
 import LinkView from "./LinkView";
+import type { LinkRendererProps } from "./types";
+import { useObsidianIcon } from "./useObsidianIcon";
 
-interface PropertiesLinksListViewProps {
+interface PropertiesLinksListViewProps extends LinkRendererProps {
   propertiesLinksList: PropertiesLinks[];
-  onClick: (fileEntity: FileEntity) => Promise<void>;
-  getPreview: (fileEntity: FileEntity) => Promise<string>;
-  getTitle: (fileEntity: FileEntity) => Promise<string>;
-  app: App;
   displayedSectionCount: number;
   initialDisplayedEntitiesCount: number;
-  resetDisplayedEntitiesCount: boolean;
+  resetRevision: number;
 }
 
-interface LinkComponentProps {
-  tagLink: PropertiesLinks;
-  onClick: (fileEntity: FileEntity) => Promise<void>;
-  getPreview: (fileEntity: FileEntity) => Promise<string>;
-  getTitle: (fileEntity: FileEntity) => Promise<string>;
-  app: App;
+interface LinkSectionProps extends LinkRendererProps {
+  propertiesLinks: PropertiesLinks;
   initialDisplayedEntitiesCount: number;
-  resetDisplayedEntitiesCount: boolean;
+  resetRevision: number;
 }
 
-interface LinkComponentState {
-  displayedEntitiesCount: number;
+const LINK_SECTION = memo(function LinkSection({
+  propertiesLinks,
+  initialDisplayedEntitiesCount,
+  resetRevision,
+  ...linkProps
+}: LinkSectionProps) {
+  const [displayedEntitiesCount, setDisplayedEntitiesCount] = useState(
+    initialDisplayedEntitiesCount,
+  );
+  const loadMoreRef = useObsidianIcon<HTMLButtonElement>("more-horizontal");
+
+  useEffect(() => {
+    void resetRevision;
+    setDisplayedEntitiesCount(initialDisplayedEntitiesCount);
+  }, [initialDisplayedEntitiesCount, resetRevision]);
+
+  const heading = propertiesLinks.key
+    ? `${propertiesLinks.key}: ${propertiesLinks.property}`
+    : propertiesLinks.property;
+  const headingClass = propertiesLinks.key
+    ? `twohop-links-${propertiesLinks.key}-header`
+    : "";
+
+  return (
+    <section className="twohop-links-section">
+      <div
+        className={`${headingClass} twohop-links-properties-header twohop-links-box`}
+      >
+        {heading}
+      </div>
+      {propertiesLinks.fileEntities
+        .slice(0, displayedEntitiesCount)
+        .map((fileEntity, index) => (
+          <LinkView
+            {...linkProps}
+            fileEntity={fileEntity}
+            key={`${propertiesLinks.property}${fileEntity.key()}${index}`}
+          />
+        ))}
+      {propertiesLinks.fileEntities.length > displayedEntitiesCount && (
+        <button
+          ref={loadMoreRef}
+          type="button"
+          aria-label={`Load more links for ${heading}`}
+          onClick={() =>
+            setDisplayedEntitiesCount(
+              (count) => count + initialDisplayedEntitiesCount,
+            )
+          }
+          className="load-more-button twohop-links-box"
+        />
+      )}
+    </section>
+  );
+});
+
+function PropertiesLinksListView({
+  propertiesLinksList,
+  displayedSectionCount,
+  ...sectionProps
+}: PropertiesLinksListViewProps) {
+  return (
+    <div>
+      {propertiesLinksList
+        .slice(0, displayedSectionCount)
+        .map((propertiesLinks) => (
+          <LINK_SECTION
+            {...sectionProps}
+            key={`${propertiesLinks.key}:${propertiesLinks.property}`}
+            propertiesLinks={propertiesLinks}
+          />
+        ))}
+    </div>
+  );
 }
 
-const LINK_COMPONENT = React.memo(
-  class extends React.Component<LinkComponentProps, LinkComponentState> {
-    loadMoreRef = createRef<HTMLDivElement>();
-
-    constructor(props: LinkComponentProps) {
-      super(props);
-      this.state = {
-        displayedEntitiesCount: props.initialDisplayedEntitiesCount,
-      };
-    }
-
-    componentDidMount() {
-      if (this.loadMoreRef.current) {
-        setIcon(this.loadMoreRef.current, "more-horizontal");
-      }
-    }
-
-    componentDidUpdate(prevProps: LinkComponentProps) {
-      if (
-        this.props.resetDisplayedEntitiesCount &&
-        this.props.resetDisplayedEntitiesCount !==
-          prevProps.resetDisplayedEntitiesCount
-      ) {
-        this.setState({
-          displayedEntitiesCount: this.props.initialDisplayedEntitiesCount,
-        });
-      }
-
-      if (this.loadMoreRef.current) {
-        setIcon(this.loadMoreRef.current, "more-horizontal");
-      }
-    }
-
-    loadMoreEntities = () => {
-      this.setState((prevState) => ({
-        displayedEntitiesCount:
-          prevState.displayedEntitiesCount +
-          this.props.initialDisplayedEntitiesCount,
-      }));
-    };
-
-    render(): JSX.Element {
-      return (
-        <div className="twohop-links-section" key={this.props.tagLink.property}>
-          <div
-            className={`${
-              this.props.tagLink.key
-                ? `twohop-links-${this.props.tagLink.key}-header`
-                : ""
-            } twohop-links-properties-header twohop-links-box`}
-          >
-            {this.props.tagLink.key
-              ? `${this.props.tagLink.key}: ${this.props.tagLink.property}`
-              : this.props.tagLink.property}
-          </div>
-          {this.props.tagLink.fileEntities
-            .slice(0, this.state.displayedEntitiesCount)
-            .map((it, index) => (
-              <LinkView
-                fileEntity={it}
-                key={this.props.tagLink.property + it.key() + index}
-                onClick={this.props.onClick}
-                getPreview={this.props.getPreview}
-                getTitle={this.props.getTitle}
-                app={this.props.app}
-              />
-            ))}
-          {this.props.tagLink.fileEntities.length >
-            this.state.displayedEntitiesCount && (
-            <div
-              ref={this.loadMoreRef}
-              onClick={this.loadMoreEntities}
-              className="load-more-button twohop-links-box"
-            ></div>
-          )}
-        </div>
-      );
-    }
-  },
-);
-
-const PropertiesLinksListView = React.memo(
-  class extends React.Component<PropertiesLinksListViewProps> {
-    render(): JSX.Element {
-      return (
-        <div>
-          {this.props.propertiesLinksList
-            .slice(0, this.props.displayedSectionCount)
-            .map((tagLink, index) => (
-              <LINK_COMPONENT
-                key={index}
-                tagLink={tagLink}
-                onClick={this.props.onClick}
-                getPreview={this.props.getPreview}
-                getTitle={this.props.getTitle}
-                app={this.props.app}
-                initialDisplayedEntitiesCount={
-                  this.props.initialDisplayedEntitiesCount
-                }
-                resetDisplayedEntitiesCount={
-                  this.props.resetDisplayedEntitiesCount
-                }
-              />
-            ))}
-        </div>
-      );
-    }
-  },
-);
-
-export default PropertiesLinksListView;
+export default memo(PropertiesLinksListView);

@@ -1,152 +1,96 @@
-import { type App, setIcon } from "obsidian";
-import React, { createRef } from "react";
-import type { FileEntity } from "../model/FileEntity";
+import { memo, useEffect, useState } from "react";
 import type { TwohopLink } from "../model/TwohopLink";
 import LinkView from "./LinkView";
+import type { LinkRendererProps } from "./types";
+import { useObsidianIcon } from "./useObsidianIcon";
 
-interface TwohopLinksViewProps {
+interface TwohopLinksViewProps extends LinkRendererProps {
   twoHopLinks: TwohopLink[];
-  onClick: (fileEntity: FileEntity) => Promise<void>;
-  getPreview: (fileEntity: FileEntity) => Promise<string>;
-  getTitle: (fileEntity: FileEntity) => Promise<string>;
-  app: App;
   displayedSectionCount: number;
   initialDisplayedEntitiesCount: number;
-  resetDisplayedEntitiesCount: boolean;
+  resetRevision: number;
 }
 
-interface LinkComponentProps {
+interface LinkSectionProps extends LinkRendererProps {
   link: TwohopLink;
-  onClick: (fileEntity: FileEntity) => Promise<void>;
-  getPreview: (fileEntity: FileEntity) => Promise<string>;
-  getTitle: (fileEntity: FileEntity) => Promise<string>;
-  app: App;
   initialDisplayedEntitiesCount: number;
-  resetDisplayedEntitiesCount: boolean;
+  resetRevision: number;
 }
 
-interface LinkComponentState {
-  displayedEntitiesCount: number;
-  title: string;
-}
+const LINK_SECTION = memo(function LinkSection({
+  link,
+  initialDisplayedEntitiesCount,
+  resetRevision,
+  onClick,
+  getTitle,
+  ...linkProps
+}: LinkSectionProps) {
+  const [displayedEntitiesCount, setDisplayedEntitiesCount] = useState(
+    initialDisplayedEntitiesCount,
+  );
+  const [title, setTitle] = useState("");
+  const loadMoreRef = useObsidianIcon<HTMLButtonElement>("more-horizontal");
 
-class LinkComponent extends React.Component<
-  LinkComponentProps,
-  LinkComponentState
-> {
-  loadMoreRef = createRef<HTMLDivElement>();
-
-  constructor(props: LinkComponentProps) {
-    super(props);
-    this.state = {
-      displayedEntitiesCount: props.initialDisplayedEntitiesCount,
-      title: null,
-    };
-  }
-
-  async componentDidMount() {
-    if (this.loadMoreRef.current) {
-      setIcon(this.loadMoreRef.current, "more-horizontal");
-    }
-
-    const title = await this.props.getTitle(this.props.link.link);
-
-    this.setState({
-      title: title,
+  useEffect(() => {
+    const controller = new AbortController();
+    void getTitle(link.link, controller.signal).then((nextTitle) => {
+      if (!controller.signal.aborted) setTitle(nextTitle);
     });
-  }
+    return () => controller.abort();
+  }, [getTitle, link.link]);
 
-  componentDidUpdate(prevProps: LinkComponentProps) {
-    if (
-      this.props.resetDisplayedEntitiesCount &&
-      this.props.resetDisplayedEntitiesCount !==
-        prevProps.resetDisplayedEntitiesCount
-    ) {
-      this.setState({
-        displayedEntitiesCount: this.props.initialDisplayedEntitiesCount,
-      });
-    }
+  useEffect(() => {
+    void resetRevision;
+    setDisplayedEntitiesCount(initialDisplayedEntitiesCount);
+  }, [initialDisplayedEntitiesCount, resetRevision]);
 
-    if (this.loadMoreRef.current) {
-      setIcon(this.loadMoreRef.current, "more-horizontal");
-    }
-  }
-
-  loadMoreEntities = () => {
-    this.setState((prevState) => ({
-      displayedEntitiesCount:
-        prevState.displayedEntitiesCount +
-        this.props.initialDisplayedEntitiesCount,
-    }));
-  };
-
-  render(): JSX.Element {
-    return (
-      <div
-        className={"twohop-links-section " + "twohop-links-resolved"}
-        key={this.props.link.link.linkText}
+  return (
+    <section className="twohop-links-section twohop-links-resolved">
+      <button
+        type="button"
+        className="twohop-links-twohop-header twohop-links-box"
+        onClick={() => void onClick(link.link)}
       >
-        <div
-          className={"twohop-links-twohop-header twohop-links-box"}
-          onClick={async () => this.props.onClick(this.props.link.link)}
-          onMouseDown={async (event) =>
-            event.button == 0 && this.props.onClick(this.props.link.link)
+        {title}
+      </button>
+      {link.fileEntities.slice(0, displayedEntitiesCount).map((fileEntity) => (
+        <LinkView
+          {...linkProps}
+          onClick={onClick}
+          getTitle={getTitle}
+          fileEntity={fileEntity}
+          key={`${link.link.linkText}${fileEntity.key()}`}
+        />
+      ))}
+      {link.fileEntities.length > displayedEntitiesCount && (
+        <button
+          ref={loadMoreRef}
+          type="button"
+          aria-label={`Load more links for ${title}`}
+          onClick={() =>
+            setDisplayedEntitiesCount(
+              (count) => count + initialDisplayedEntitiesCount,
+            )
           }
-        >
-          {this.state.title}
-        </div>
-        {this.props.link.fileEntities
-          .slice(0, this.state.displayedEntitiesCount)
-          .map((it) => (
-            <LinkView
-              fileEntity={it}
-              key={this.props.link.link.linkText + it.key()}
-              onClick={this.props.onClick}
-              getPreview={this.props.getPreview}
-              getTitle={this.props.getTitle}
-              app={this.props.app}
-            />
-          ))}
-        {this.props.link.fileEntities.length >
-          this.state.displayedEntitiesCount && (
-          <div
-            ref={this.loadMoreRef}
-            onClick={this.loadMoreEntities}
-            className="load-more-button twohop-links-box"
-          ></div>
-        )}
-      </div>
-    );
-  }
+          className="load-more-button twohop-links-box"
+        />
+      )}
+    </section>
+  );
+});
+
+function TwohopLinksView({
+  twoHopLinks,
+  displayedSectionCount,
+  ...sectionProps
+}: TwohopLinksViewProps) {
+  return (
+    <div>
+      {twoHopLinks.slice(0, displayedSectionCount).map((link) => (
+        <LINK_SECTION {...sectionProps} key={link.link.key()} link={link} />
+      ))}
+    </div>
+  );
 }
 
-const MEMOIZED_LINK_COMPONENT = React.memo(LinkComponent);
-
-class TwohopLinksView extends React.Component<TwohopLinksViewProps> {
-  render(): JSX.Element {
-    return (
-      <div>
-        {this.props.twoHopLinks
-          .slice(0, this.props.displayedSectionCount)
-          .map((link, index) => (
-            <MEMOIZED_LINK_COMPONENT
-              key={index}
-              link={link}
-              onClick={this.props.onClick}
-              getPreview={this.props.getPreview}
-              getTitle={this.props.getTitle}
-              app={this.props.app}
-              initialDisplayedEntitiesCount={
-                this.props.initialDisplayedEntitiesCount
-              }
-              resetDisplayedEntitiesCount={
-                this.props.resetDisplayedEntitiesCount
-              }
-            />
-          ))}
-      </div>
-    );
-  }
-}
-
-export default React.memo(TwohopLinksView);
+export default memo(TwohopLinksView);
