@@ -1,7 +1,8 @@
-import { memo, useEffect, useState } from "react";
+import { memo, useState } from "react";
 import type { TwohopLink } from "../model/TwohopLink";
 import LinkView from "./LinkView";
 import type { LinkRendererProps } from "./types";
+import { useFileContent } from "./useFileContent";
 import { useObsidianIcon } from "./useObsidianIcon";
 
 interface TwohopLinksViewProps extends LinkRendererProps {
@@ -25,16 +26,8 @@ const LINK_SECTION = memo(function LinkSection({
   const [displayedEntitiesCount, setDisplayedEntitiesCount] = useState(
     initialDisplayedEntitiesCount,
   );
-  const [title, setTitle] = useState("");
+  const title = useFileContent(getTitle, link.link);
   const loadMoreRef = useObsidianIcon<HTMLDivElement>("more-horizontal");
-
-  useEffect(() => {
-    const controller = new AbortController();
-    void getTitle(link.link, controller.signal).then((nextTitle) => {
-      if (!controller.signal.aborted) setTitle(nextTitle);
-    });
-    return () => controller.abort();
-  }, [getTitle, link.link]);
 
   return (
     <section className="twohop-links-section twohop-links-resolved">

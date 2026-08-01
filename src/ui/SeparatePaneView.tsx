@@ -1,4 +1,4 @@
-import { ItemView, TFile, type WorkspaceLeaf } from "obsidian";
+import { FileView, ItemView, TFile, type WorkspaceLeaf } from "obsidian";
 import type { Links } from "../links";
 import type TwohopLinksPlugin from "../main";
 import { renderReactRoot, unmountReactRoot } from "./reactRoot";
@@ -112,8 +112,9 @@ export class SeparatePaneView extends ItemView {
             return;
           }
 
-          const newActiveFile = (leaf.view as any).file as TFile;
-          const newActiveFilePath = newActiveFile ? newActiveFile.path : null;
+          const newActiveFile =
+            leaf.view instanceof FileView ? leaf.view.file : null;
+          const newActiveFilePath = newActiveFile?.path ?? null;
 
           if (
             lastActiveFilePath !== newActiveFilePath ||
@@ -134,7 +135,7 @@ export class SeparatePaneView extends ItemView {
     }
 
     const cache = this.app.metadataCache.getFileCache(file);
-    return cache && cache.links ? cache.links.map((link) => link.link) : [];
+    return cache?.links?.map((link) => link.link) ?? [];
   }
 
   private getActiveFileTags(file: TFile | null): string[] {
@@ -144,9 +145,9 @@ export class SeparatePaneView extends ItemView {
 
     const cache = this.app.metadataCache.getFileCache(file);
 
-    let tags = cache && cache.tags ? cache.tags.map((tag) => tag.tag) : [];
+    let tags = cache?.tags?.map((tag) => tag.tag) ?? [];
 
-    if (cache && cache.frontmatter && cache.frontmatter.tags) {
+    if (cache?.frontmatter?.tags) {
       if (typeof cache.frontmatter.tags === "string") {
         tags.push(cache.frontmatter.tags);
       } else if (Array.isArray(cache.frontmatter.tags)) {

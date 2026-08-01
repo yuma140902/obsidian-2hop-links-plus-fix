@@ -4,14 +4,13 @@ import {
   type MouseEvent as ReactMouseEvent,
   type TouchEvent as ReactTouchEvent,
   useCallback,
-  useEffect,
   useRef,
-  useState,
 } from "react";
 import { HOVER_LINK_ID } from "../main";
 import type { FileEntity } from "../model/FileEntity";
 import { removeBlockReference } from "../utils";
 import type { LinkRendererProps } from "./types";
+import { useFileContent } from "./useFileContent";
 
 interface LinkViewProps extends LinkRendererProps {
   fileEntity: FileEntity;
@@ -26,30 +25,14 @@ function LinkView({
   getPreview,
   getTitle,
 }: LinkViewProps) {
-  const [preview, setPreview] = useState("");
-  const [title, setTitle] = useState("");
+  const preview = useFileContent(getPreview, fileEntity);
+  const title = useFileContent(getTitle, fileEntity);
   const dragging = useRef(false);
   const touchStart = useRef(0);
   const hoverParent = useRef<HoverParent>({ hoverPopover: null }).current;
   const isMobile = useRef(
     window.matchMedia("(pointer: coarse)").matches,
   ).current;
-
-  useEffect(() => {
-    const controller = new AbortController();
-
-    void Promise.all([
-      getPreview(fileEntity, controller.signal),
-      getTitle(fileEntity, controller.signal),
-    ]).then(([nextPreview, nextTitle]) => {
-      if (!controller.signal.aborted) {
-        setPreview(nextPreview);
-        setTitle(nextTitle);
-      }
-    });
-
-    return () => controller.abort();
-  }, [fileEntity, getPreview, getTitle]);
 
   const openFileWithOptions = useCallback(
     async (options?: OpenLocation) => {
