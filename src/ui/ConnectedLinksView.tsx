@@ -20,7 +20,7 @@ function ConnectedLinksView({
   className,
   ...linkProps
 }: ConnectedLinksViewProps) {
-  const loadMoreRef = useObsidianIcon<HTMLButtonElement>("more-horizontal");
+  const loadMoreRef = useObsidianIcon<HTMLDivElement>("more-horizontal");
 
   if (fileEntities.length === 0) return null;
 
@@ -37,10 +37,8 @@ function ConnectedLinksView({
         />
       ))}
       {fileEntities.length > displayedBoxCount && (
-        <button
+        <div
           ref={loadMoreRef}
-          type="button"
-          aria-label="Load more links"
           onClick={onLoadMore}
           className="load-more-button twohop-links-box"
         />

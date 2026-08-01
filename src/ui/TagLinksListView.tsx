@@ -23,7 +23,7 @@ const LINK_SECTION = memo(function LinkSection({
   const [displayedEntitiesCount, setDisplayedEntitiesCount] = useState(
     initialDisplayedEntitiesCount,
   );
-  const loadMoreRef = useObsidianIcon<HTMLButtonElement>("more-horizontal");
+  const loadMoreRef = useObsidianIcon<HTMLDivElement>("more-horizontal");
 
   const heading = propertiesLinks.key
     ? `${propertiesLinks.key}: ${propertiesLinks.property}`
@@ -49,10 +49,8 @@ const LINK_SECTION = memo(function LinkSection({
           />
         ))}
       {propertiesLinks.fileEntities.length > displayedEntitiesCount && (
-        <button
+        <div
           ref={loadMoreRef}
-          type="button"
-          aria-label={`Load more links for ${heading}`}
           onClick={() =>
             setDisplayedEntitiesCount(
               (count) => count + initialDisplayedEntitiesCount,
