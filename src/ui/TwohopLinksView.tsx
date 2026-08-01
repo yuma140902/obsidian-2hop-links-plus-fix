@@ -26,7 +26,7 @@ const LINK_SECTION = memo(function LinkSection({
     initialDisplayedEntitiesCount,
   );
   const [title, setTitle] = useState("");
-  const loadMoreRef = useObsidianIcon<HTMLButtonElement>("more-horizontal");
+  const loadMoreRef = useObsidianIcon<HTMLDivElement>("more-horizontal");
 
   useEffect(() => {
     const controller = new AbortController();
@@ -38,13 +38,12 @@ const LINK_SECTION = memo(function LinkSection({
 
   return (
     <section className="twohop-links-section twohop-links-resolved">
-      <button
-        type="button"
+      <div
         className="twohop-links-twohop-header twohop-links-box"
         onClick={() => void onClick(link.link)}
       >
         {title}
-      </button>
+      </div>
       {link.fileEntities.slice(0, displayedEntitiesCount).map((fileEntity) => (
         <LinkView
           {...linkProps}
@@ -55,10 +54,8 @@ const LINK_SECTION = memo(function LinkSection({
         />
       ))}
       {link.fileEntities.length > displayedEntitiesCount && (
-        <button
+        <div
           ref={loadMoreRef}
-          type="button"
-          aria-label={`Load more links for ${title}`}
           onClick={() =>
             setDisplayedEntitiesCount(
               (count) => count + initialDisplayedEntitiesCount,
