@@ -1,77 +1,48 @@
-import { type App, setIcon } from "obsidian";
-import React, { createRef } from "react";
+import { memo } from "react";
 import type { FileEntity } from "../model/FileEntity";
 import LinkView from "./LinkView";
+import type { LinkRendererProps } from "./types";
+import { useObsidianIcon } from "./useObsidianIcon";
 
-interface NewLinksViewProps {
+interface NewLinksViewProps extends LinkRendererProps {
   fileEntities: FileEntity[];
   displayedBoxCount: number;
-  onClick: (fileEntity: FileEntity) => Promise<void>;
-  getPreview: (fileEntity: FileEntity) => Promise<string>;
-  getTitle: (fileEntity: FileEntity) => Promise<string>;
   onLoadMore: () => void;
-  app: App;
 }
 
-export default class NewLinksView extends React.Component<NewLinksViewProps> {
-  loadMoreRef = createRef<HTMLDivElement>();
+function NewLinksView({
+  fileEntities,
+  displayedBoxCount,
+  onLoadMore,
+  ...linkProps
+}: NewLinksViewProps) {
+  const loadMoreRef = useObsidianIcon<HTMLButtonElement>("more-horizontal");
 
-  constructor(props: NewLinksViewProps) {
-    super(props);
-  }
+  if (fileEntities.length === 0) return null;
 
-  shouldComponentUpdate(nextProps: NewLinksViewProps) {
-    return (
-      this.props.fileEntities !== nextProps.fileEntities ||
-      this.props.displayedBoxCount !== nextProps.displayedBoxCount ||
-      this.props.app !== nextProps.app
-    );
-  }
-
-  componentDidMount() {
-    if (this.loadMoreRef.current) {
-      setIcon(this.loadMoreRef.current, "more-horizontal");
-    }
-  }
-
-  componentDidUpdate() {
-    if (this.loadMoreRef.current) {
-      setIcon(this.loadMoreRef.current, "more-horizontal");
-    }
-  }
-
-  render(): JSX.Element {
-    if (this.props.fileEntities.length > 0) {
-      return (
-        <div className="twohop-links-section">
-          <div className={"twohop-links-box twohop-links-new-links-header"}>
-            New links
-          </div>
-          {this.props.fileEntities
-            .slice(0, this.props.displayedBoxCount)
-            .map((it) => {
-              return (
-                <LinkView
-                  fileEntity={it}
-                  key={it.key()}
-                  onClick={this.props.onClick}
-                  getPreview={this.props.getPreview}
-                  getTitle={this.props.getTitle}
-                  app={this.props.app}
-                />
-              );
-            })}
-          {this.props.displayedBoxCount < this.props.fileEntities.length && (
-            <div
-              ref={this.loadMoreRef}
-              onClick={this.props.onLoadMore}
-              className="load-more-button twohop-links-box"
-            ></div>
-          )}
-        </div>
-      );
-    } else {
-      return <div />;
-    }
-  }
+  return (
+    <section className="twohop-links-section">
+      <div className="twohop-links-box twohop-links-new-links-header">
+        New links
+      </div>
+      {fileEntities.slice(0, displayedBoxCount).map((fileEntity) => (
+        <LinkView
+          {...linkProps}
+          fileEntity={fileEntity}
+          key={fileEntity.key()}
+        />
+      ))}
+      {displayedBoxCount < fileEntities.length && (
+        <button
+          ref={loadMoreRef}
+          type="button"
+          aria-label="Load more new links"
+          onClick={onLoadMore}
+          className="load-more-button twohop-links-box"
+        />
+      )}
+    </section>
+  );
 }
+
+export default memo(NewLinksView);

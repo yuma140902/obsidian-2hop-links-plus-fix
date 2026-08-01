@@ -1,206 +1,166 @@
+import { type HoverParent, Menu, type WorkspaceLeaf } from "obsidian";
 import {
-  type App,
-  type HoverParent,
-  type HoverPopover,
-  Menu,
-  type WorkspaceLeaf,
-} from "obsidian";
-import React from "react";
+  memo,
+  type MouseEvent as ReactMouseEvent,
+  type TouchEvent as ReactTouchEvent,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { HOVER_LINK_ID } from "../main";
 import type { FileEntity } from "../model/FileEntity";
 import { removeBlockReference } from "../utils";
+import type { LinkRendererProps } from "./types";
 
-interface LinkViewProps {
+interface LinkViewProps extends LinkRendererProps {
   fileEntity: FileEntity;
-  onClick: (fileEntity: FileEntity) => Promise<void>;
-  getPreview: (fileEntity: FileEntity, signal: AbortSignal) => Promise<string>;
-  getTitle: (fileEntity: FileEntity, signal: AbortSignal) => Promise<string>;
-  app: App;
 }
 
-interface LinkViewState {
-  preview: string;
-  title: string;
-  mouseDown: boolean;
-  dragging: boolean;
-  touchStart: number;
-}
+type OpenLocation = "tab" | "split" | "window";
 
-export default class LinkView
-  extends React.Component<LinkViewProps, LinkViewState>
-  implements HoverParent
-{
-  private abortController: AbortController;
-  hoverPopover: HoverPopover | null;
-  isMobile: boolean;
+function LinkView({
+  app,
+  fileEntity,
+  onClick,
+  getPreview,
+  getTitle,
+}: LinkViewProps) {
+  const [preview, setPreview] = useState("");
+  const [title, setTitle] = useState("");
+  const dragging = useRef(false);
+  const touchStart = useRef(0);
+  const hoverParent = useRef<HoverParent>({ hoverPopover: null }).current;
+  const isMobile = useRef(
+    window.matchMedia("(pointer: coarse)").matches,
+  ).current;
 
-  constructor(props: LinkViewProps) {
-    super(props);
-    this.state = {
-      preview: null,
-      title: null,
-      mouseDown: false,
-      dragging: false,
-      touchStart: 0,
-    };
-    this.isMobile = window.matchMedia("(pointer: coarse)").matches;
-  }
+  useEffect(() => {
+    const controller = new AbortController();
 
-  async componentDidMount(): Promise<void> {
-    this.abortController = new AbortController();
-    const preview = await this.props.getPreview(
-      this.props.fileEntity,
-      this.abortController.signal,
-    );
-    const title = await this.props.getTitle(
-      this.props.fileEntity,
-      this.abortController.signal,
-    );
-    if (!this.abortController.signal.aborted) {
-      this.setState({
-        preview: preview,
-        title: title,
-      });
-    }
-  }
-
-  componentWillUnmount() {
-    this.abortController.abort();
-  }
-
-  async openFileWithOptions(options?: "tab" | "split" | "window") {
-    const { app, fileEntity } = this.props;
-    const file = app.metadataCache.getFirstLinkpathDest(
-      removeBlockReference(fileEntity.linkText),
-      fileEntity.sourcePath,
-    );
-    let leaf: WorkspaceLeaf;
-    leaf = app.workspace.getLeaf(options);
-
-    await leaf.openFile(file);
-  }
-
-  handleContextMenu = (event: React.MouseEvent | React.TouchEvent) => {
-    if ("button" in event && event.button !== 2) return;
-    event.preventDefault();
-
-    const clientX =
-      "changedTouches" in event
-        ? event.changedTouches[0].clientX
-        : event.clientX;
-    const clientY =
-      "changedTouches" in event
-        ? event.changedTouches[0].clientY
-        : event.clientY;
-
-    const menu = new Menu();
-
-    menu.addItem((item) =>
-      item.setTitle("Open link").onClick(async () => {
-        await this.openFileWithOptions();
-      }),
-    );
-
-    menu.addItem((item) =>
-      item.setTitle("Open in new tab").onClick(async () => {
-        await this.openFileWithOptions("tab");
-      }),
-    );
-
-    menu.addItem((item) =>
-      item.setTitle("Open to the right").onClick(async () => {
-        await this.openFileWithOptions("split");
-      }),
-    );
-
-    menu.addItem((item) =>
-      item.setTitle("Open in new window").onClick(async () => {
-        await this.openFileWithOptions("window");
-      }),
-    );
-
-    menu.showAtPosition({ x: clientX, y: clientY });
-  };
-
-  onMouseOver = (e: React.MouseEvent) => {
-    const targetEl = e.currentTarget as HTMLElement;
-
-    if (targetEl.tagName !== "DIV") return;
-
-    this.props.app.workspace.trigger("hover-link", {
-      event: e.nativeEvent,
-      source: HOVER_LINK_ID,
-      hoverParent: this,
-      targetEl,
-      linktext: this.props.fileEntity.linkText,
-      sourcePath: this.props.fileEntity.sourcePath,
+    void Promise.all([
+      getPreview(fileEntity, controller.signal),
+      getTitle(fileEntity, controller.signal),
+    ]).then(([nextPreview, nextTitle]) => {
+      if (!controller.signal.aborted) {
+        setPreview(nextPreview);
+        setTitle(nextTitle);
+      }
     });
-  };
 
-  onMouseUpOrTouchEnd = async (event: React.MouseEvent | React.TouchEvent) => {
-    const longPress = Date.now() - this.state.touchStart >= 500;
-    if (longPress && !this.state.dragging) {
-      this.handleContextMenu(event);
-    } else if (!this.state.dragging) {
-      await this.props.onClick(this.props.fileEntity);
-    }
-    this.setState({ touchStart: 0, dragging: false });
-  };
+    return () => controller.abort();
+  }, [fileEntity, getPreview, getTitle]);
 
-  render(): JSX.Element {
-    return (
-      <div
-        className={"twohop-links-box"}
-        onTouchStart={() => {
-          this.setState({ touchStart: Date.now() });
-        }}
-        onTouchMove={() => {
-          if (Date.now() - this.state.touchStart < 200) {
-            this.setState({ dragging: true });
-          }
-        }}
-        onTouchEnd={this.onMouseUpOrTouchEnd}
-        onTouchCancel={() => {
-          this.setState({ touchStart: 0, dragging: false });
-        }}
-        onMouseDown={(event) => {
-          if (this.isMobile) return;
-          if (event.button === 0) {
-            this.setState({ mouseDown: true });
-          }
-          if (event.button === 1) {
-            event.preventDefault();
-          }
-        }}
-        onMouseUp={(event) => {
-          if (this.isMobile) return;
-          if (event.button === 1) {
-            this.openFileWithOptions("tab");
-          } else if (event.button === 0 && !this.state.dragging) {
-            this.props.onClick(this.props.fileEntity);
-          }
-          this.setState({ mouseDown: false, dragging: false });
-        }}
-        onContextMenu={this.handleContextMenu}
-        onMouseOver={this.onMouseOver}
-        draggable="true"
-        onDragStart={(event) => {
-          const fileEntityLinkText = removeBlockReference(
-            this.props.fileEntity.linkText,
-          );
-          event.dataTransfer.setData("text/plain", `[[${fileEntityLinkText}]]`);
-        }}
-      >
-        <div className="twohop-links-box-title">{this.state.title}</div>
-        <div className={"twohop-links-box-preview"}>
-          {this.state.preview &&
-          this.state.preview.match(/^(app|https?):\/\//) ? (
-            <img src={this.state.preview} alt={"preview image"} />
-          ) : (
-            <div>{this.state.preview}</div>
-          )}
-        </div>
+  const openFileWithOptions = useCallback(
+    async (options?: OpenLocation) => {
+      const file = app.metadataCache.getFirstLinkpathDest(
+        removeBlockReference(fileEntity.linkText),
+        fileEntity.sourcePath,
+      );
+      if (!file) return;
+
+      const leaf: WorkspaceLeaf = app.workspace.getLeaf(options);
+      await leaf.openFile(file);
+    },
+    [app, fileEntity],
+  );
+
+  const handleContextMenu = useCallback(
+    (event: ReactMouseEvent | ReactTouchEvent) => {
+      if ("button" in event && event.button !== 2) return;
+      event.preventDefault();
+
+      const point = "changedTouches" in event ? event.changedTouches[0] : event;
+      const menu = new Menu();
+
+      menu.addItem((item) =>
+        item.setTitle("Open link").onClick(() => openFileWithOptions()),
+      );
+      menu.addItem((item) =>
+        item
+          .setTitle("Open in new tab")
+          .onClick(() => openFileWithOptions("tab")),
+      );
+      menu.addItem((item) =>
+        item
+          .setTitle("Open to the right")
+          .onClick(() => openFileWithOptions("split")),
+      );
+      menu.addItem((item) =>
+        item
+          .setTitle("Open in new window")
+          .onClick(() => openFileWithOptions("window")),
+      );
+      menu.showAtPosition({ x: point.clientX, y: point.clientY });
+    },
+    [openFileWithOptions],
+  );
+
+  const handleTouchEnd = useCallback(
+    async (event: ReactTouchEvent) => {
+      const longPress = Date.now() - touchStart.current >= 500;
+      if (longPress && !dragging.current) {
+        handleContextMenu(event);
+      } else if (!dragging.current) {
+        await onClick(fileEntity);
+      }
+      touchStart.current = 0;
+      dragging.current = false;
+    },
+    [fileEntity, handleContextMenu, onClick],
+  );
+
+  return (
+    <div
+      className="twohop-links-box"
+      onTouchStart={() => {
+        touchStart.current = Date.now();
+      }}
+      onTouchMove={() => {
+        if (Date.now() - touchStart.current < 200) dragging.current = true;
+      }}
+      onTouchEnd={handleTouchEnd}
+      onTouchCancel={() => {
+        touchStart.current = 0;
+        dragging.current = false;
+      }}
+      onMouseDown={(event) => {
+        if (!isMobile && event.button === 1) event.preventDefault();
+      }}
+      onMouseUp={(event) => {
+        if (isMobile) return;
+        if (event.button === 1) void openFileWithOptions("tab");
+        else if (event.button === 0 && !dragging.current)
+          void onClick(fileEntity);
+        dragging.current = false;
+      }}
+      onContextMenu={handleContextMenu}
+      onMouseOver={(event) => {
+        app.workspace.trigger("hover-link", {
+          event: event.nativeEvent,
+          source: HOVER_LINK_ID,
+          hoverParent,
+          targetEl: event.currentTarget,
+          linktext: fileEntity.linkText,
+          sourcePath: fileEntity.sourcePath,
+        });
+      }}
+      draggable
+      onDragStart={(event) => {
+        const linkText = removeBlockReference(fileEntity.linkText);
+        event.dataTransfer.setData("text/plain", `[[${linkText}]]`);
+      }}
+    >
+      <div className="twohop-links-box-title">{title}</div>
+      <div className="twohop-links-box-preview">
+        {preview.match(/^(app|https?):\/\//) ? (
+          <img src={preview} alt="Preview" />
+        ) : (
+          <div>{preview}</div>
+        )}
       </div>
-    );
-  }
+    </div>
+  );
 }
+
+export default memo(LinkView);

@@ -1,78 +1,52 @@
-import { type App, setIcon } from "obsidian";
-import React from "react";
+import { memo } from "react";
 import type { FileEntity } from "../model/FileEntity";
 import LinkView from "./LinkView";
+import type { LinkRendererProps } from "./types";
+import { useObsidianIcon } from "./useObsidianIcon";
 
-interface ConnectedLinksViewProps {
+interface ConnectedLinksViewProps extends LinkRendererProps {
   fileEntities: FileEntity[];
   displayedBoxCount: number;
-  onClick: (fileEntity: FileEntity) => Promise<void>;
-  getPreview: (fileEntity: FileEntity) => Promise<string>;
-  getTitle: (fileEntity: FileEntity) => Promise<string>;
   onLoadMore: () => void;
   title: string;
   className: string;
-  app: App;
 }
 
-export default class ConnectedLinksView extends React.Component<ConnectedLinksViewProps> {
-  private loadMoreRef: React.RefObject<HTMLDivElement>;
+function ConnectedLinksView({
+  fileEntities,
+  displayedBoxCount,
+  onLoadMore,
+  title,
+  className,
+  ...linkProps
+}: ConnectedLinksViewProps) {
+  const loadMoreRef = useObsidianIcon<HTMLButtonElement>("more-horizontal");
 
-  constructor(props: ConnectedLinksViewProps) {
-    super(props);
-    this.loadMoreRef = React.createRef();
-  }
+  if (fileEntities.length === 0) return null;
 
-  componentDidMount() {
-    if (this.loadMoreRef.current) {
-      setIcon(this.loadMoreRef.current, "more-horizontal");
-    }
-  }
-
-  shouldComponentUpdate(nextProps: ConnectedLinksViewProps) {
-    return (
-      nextProps.fileEntities !== this.props.fileEntities ||
-      nextProps.displayedBoxCount !== this.props.displayedBoxCount ||
-      nextProps.title !== this.props.title ||
-      nextProps.className !== this.props.className ||
-      nextProps.app !== this.props.app
-    );
-  }
-
-  render(): JSX.Element {
-    if (this.props.fileEntities.length > 0) {
-      return (
-        <div className={"twohop-links-section " + this.props.className}>
-          <div
-            className={"twohop-links-box twohop-links-connected-links-header"}
-          >
-            {this.props.title}
-          </div>
-          {this.props.fileEntities
-            .slice(0, this.props.displayedBoxCount)
-            .map((it) => {
-              return (
-                <LinkView
-                  fileEntity={it}
-                  key={it.key()}
-                  onClick={this.props.onClick}
-                  getPreview={this.props.getPreview}
-                  getTitle={this.props.getTitle}
-                  app={this.props.app}
-                />
-              );
-            })}
-          {this.props.fileEntities.length > this.props.displayedBoxCount && (
-            <div
-              ref={this.loadMoreRef}
-              onClick={this.props.onLoadMore}
-              className="load-more-button twohop-links-box"
-            ></div>
-          )}
-        </div>
-      );
-    } else {
-      return <div />;
-    }
-  }
+  return (
+    <section className={`twohop-links-section ${className}`}>
+      <div className="twohop-links-box twohop-links-connected-links-header">
+        {title}
+      </div>
+      {fileEntities.slice(0, displayedBoxCount).map((fileEntity) => (
+        <LinkView
+          {...linkProps}
+          fileEntity={fileEntity}
+          key={fileEntity.key()}
+        />
+      ))}
+      {fileEntities.length > displayedBoxCount && (
+        <button
+          ref={loadMoreRef}
+          type="button"
+          aria-label="Load more links"
+          onClick={onLoadMore}
+          className="load-more-button twohop-links-box"
+        />
+      )}
+    </section>
+  );
 }
+
+export default memo(ConnectedLinksView);
