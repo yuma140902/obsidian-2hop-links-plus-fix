@@ -1,61 +1,122 @@
 import type { TFile } from "obsidian";
 import type { PropertiesLinks } from "./model/PropertiesLinks";
 
+const HOUR_IN_MILLISECONDS = 60 * 60 * 1000;
+
+function getHourlySeed(): number {
+  return Math.floor(Date.now() / HOUR_IN_MILLISECONDS);
+}
+
+interface SortableValue {
+  entity?: { sourcePath?: string; linkText?: string };
+  twoHopLinkEntity?: {
+    link?: { sourcePath?: string; linkText?: string };
+  };
+  sourcePath?: string;
+  linkText?: string;
+  path?: string;
+  property?: string;
+}
+
+function getSortKey(value: unknown): string {
+  if (typeof value === "string" || typeof value === "number") {
+    return String(value);
+  }
+
+  if (value == null || typeof value !== "object") return String(value);
+
+  const sortableValue = value as SortableValue;
+  const entity = sortableValue.entity;
+  const twoHopLink = sortableValue.twoHopLinkEntity?.link;
+  return [
+    entity?.sourcePath,
+    entity?.linkText,
+    twoHopLink?.sourcePath,
+    twoHopLink?.linkText,
+    sortableValue.sourcePath,
+    sortableValue.linkText,
+    sortableValue.path,
+    sortableValue.property,
+  ]
+    .filter((part) => part != null)
+    .join("\u0000");
+}
+
+function seededHash(value: string, seed: number): number {
+  let hash = (2166136261 ^ seed) >>> 0;
+  for (let i = 0; i < value.length; i++) {
+    hash = Math.imul(hash ^ value.charCodeAt(i), 16777619);
+  }
+  return hash >>> 0;
+}
+
+function getHourlyRandomComparator() {
+  const seed = getHourlySeed();
+  return (a: unknown, b: unknown) => {
+    const aKey = getSortKey(a);
+    const bKey = getSortKey(b);
+    const hashDifference = seededHash(aKey, seed) - seededHash(bKey, seed);
+    return hashDifference || aKey.localeCompare(bKey);
+  };
+}
+
 export function getSortFunction(sortOrder: string) {
+  const hourlyRandomComparator = getHourlyRandomComparator();
   switch (sortOrder) {
     case "random":
-      return () => Math.random() - 0.5;
+      return hourlyRandomComparator;
     case "filenameAsc":
       return (a: any, b: any) =>
         a.entity && b.entity
           ? a.entity.linkText.localeCompare(b.entity.linkText)
-          : Math.random() - 0.5;
+          : hourlyRandomComparator(a, b);
     case "filenameDesc":
       return (a: any, b: any) =>
         a.entity && b.entity
           ? b.entity.linkText.localeCompare(a.entity.linkText)
-          : Math.random() - 0.5;
+          : hourlyRandomComparator(a, b);
     case "modifiedDesc":
       return (a: any, b: any) =>
         a.stat && b.stat && a.stat.mtime && b.stat.mtime
           ? b.stat.mtime - a.stat.mtime
-          : Math.random() - 0.5;
+          : hourlyRandomComparator(a, b);
     case "modifiedAsc":
       return (a: any, b: any) =>
         a.stat && b.stat && a.stat.mtime && b.stat.mtime
           ? a.stat.mtime - b.stat.mtime
-          : Math.random() - 0.5;
+          : hourlyRandomComparator(a, b);
     case "createdDesc":
       return (a: any, b: any) =>
         a.stat && b.stat && a.stat.ctime && b.stat.ctime
           ? b.stat.ctime - a.stat.ctime
-          : Math.random() - 0.5;
+          : hourlyRandomComparator(a, b);
     case "createdAsc":
       return (a: any, b: any) =>
         a.stat && b.stat && a.stat.ctime && b.stat.ctime
           ? a.stat.ctime - b.stat.ctime
-          : Math.random() - 0.5;
+          : hourlyRandomComparator(a, b);
   }
 }
 
 export function getTwoHopSortFunction(sortOrder: string) {
+  const hourlyRandomComparator = getHourlyRandomComparator();
   switch (sortOrder) {
     case "random":
-      return () => Math.random() - 0.5;
+      return hourlyRandomComparator;
     case "filenameAsc":
       return (a: any, b: any) =>
         a.twoHopLinkEntity && b.twoHopLinkEntity
           ? a.twoHopLinkEntity.link.linkText.localeCompare(
               b.twoHopLinkEntity.link.linkText,
             )
-          : Math.random() - 0.5;
+          : hourlyRandomComparator(a, b);
     case "filenameDesc":
       return (a: any, b: any) =>
         a.twoHopLinkEntity && b.twoHopLinkEntity
           ? b.twoHopLinkEntity.link.linkText.localeCompare(
               a.twoHopLinkEntity.link.linkText,
             )
-          : Math.random() - 0.5;
+          : hourlyRandomComparator(a, b);
     case "modifiedDesc":
       return (a: any, b: any) => b.stat.mtime - a.stat.mtime;
     case "modifiedAsc":
@@ -69,8 +130,10 @@ export function getTwoHopSortFunction(sortOrder: string) {
 
 export function getSortFunctionForFile(sortOrder: string) {
   switch (sortOrder) {
-    case "random":
-      return () => Math.random() - 0.5;
+    case "random": {
+      const seed = getHourlySeed();
+      return (file: TFile) => seededHash(file.path, seed);
+    }
     case "filenameAsc":
       return (file: TFile) => file.basename;
     case "filenameDesc":
