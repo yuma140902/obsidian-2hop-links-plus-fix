@@ -20,7 +20,7 @@
     "enabled": true,
     "indentStyle": "space",
     "indentWidth": 2,
-    "includes": ["**/*.{ts,tsx,md}"]
+    "includes": ["**/*.{ts,tsx,md}", "!README.md", "!README.ja.md"]
   },
   "javascript": {
     "formatter": {
